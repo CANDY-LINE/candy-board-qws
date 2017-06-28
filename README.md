@@ -2,7 +2,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/CANDY-LINE/candy-board-qws.svg)](https://github.com/CANDY-LINE/candy-board-qws/releases/latest)
 [![Build Status](https://travis-ci.org/CANDY-LINE/candy-board-qws.svg?branch=master)](https://travis-ci.org/CANDY-LINE/candy-board-qws)
-[![License BSD3](https://img.shields.io/github/license/CANDY-LINE/candy-board-qws.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![License MIT](https://img.shields.io/github/license/CANDY-LINE/candy-board-qws.svg)](http://opensource.org/licenses/MIT)
 
 Base CANDY LINE boards service for Quectel Wireless Solutions Modules
 
