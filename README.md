@@ -38,6 +38,8 @@ $ pip install pypandoc
 $ ./setup.py install --record files.txt
 ```
 
+ * `sudo` is required in some cases
+
 ### Local Uninstallation test
 
 ```
