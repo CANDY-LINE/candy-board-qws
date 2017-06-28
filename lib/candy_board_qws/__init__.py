@@ -315,18 +315,22 @@ class SockServer(threading.Thread):
     def _apn_ls(self):
         status, result = self.send_at("AT+CGDCONT?")
         apn_list = []
+        id_name_list = []
         if status == "OK":
-            id_name_list = map(lambda e: e[10:].split(",")[0] + "," +
-                               e[10:].split(",")[2].translate(None, '"'),
-                               result.split("\n"))
-            status, result = self.send_at("AT$QCPDPP?")
-            creds_list = []
-            if status == "OK":
-                creds_list = map(lambda e: e[2].translate(None, '"'),
-                                 filter(lambda e: len(e) > 2,
-                                        map(lambda e: e[9:].split(","),
-                                            result.split("\n"))))
-            for i in range(len(id_name_list)):
+            try:
+                id_name_list = map(lambda e: e[10:].split(",")[0] + "," +
+                                   e[10:].split(",")[2].translate(None, '"'),
+                                   result.split("\n"))
+                status, result = self.send_at("AT$QCPDPP?")
+                creds_list = []
+                if status == "OK":
+                    creds_list = map(lambda e: e[2].translate(None, '"'),
+                                     filter(lambda e: len(e) > 2,
+                                            map(lambda e: e[9:].split(","),
+                                                result.split("\n"))))
+            except IndexError:
+                pass
+        for i in range(len(id_name_list)):
                 id_name = id_name_list[i].split(",")
                 apn = {
                     'apn_id': id_name[0],
