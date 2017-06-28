@@ -46,7 +46,7 @@ setup(
     long_description=readme_txt,
     packages=find_packages('lib'),
     package_dir={'': 'lib'},
-    license='BSD3',
+    license='MIT',
     classifiers=[
                     'Programming Language :: Python',
                     'Development Status :: 5 - Production/Stable',
@@ -54,7 +54,7 @@ setup(
                     'Environment :: Console',
                     'Intended Audience :: System Administrators',
                     'Intended Audience :: Developers',
-                    'License :: OSI Approved :: BSD License',
+                    'License :: OSI Approved :: MIT License',
                     'Operating System :: POSIX :: Linux',
                     'Topic :: System :: Hardware',
                  ],
