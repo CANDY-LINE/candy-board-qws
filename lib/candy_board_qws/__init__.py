@@ -46,11 +46,15 @@ def bps_to_termios_sym(bps):
     return BPS_SYMS[bps]
 
 # For local debugging:
-# import candy-board-qws
-# serial = candy-board-qws.SerialPort("/dev/ttyUSB1", 115200)
-# server = candy-board-qws.SockServer("/var/run/candy-iot.sock", serial)
+# import candy_board_qws
+# serial = candy_board_qws.SerialPort("/dev/ttyUSB1", 115200)
+# server = candy_board_qws.SockServer("/var/run/candy-iot.sock", serial)
 # server.debug = True
 # server.apn_ls()
+
+# looking for a modem serial port
+# import candy_board_qws
+# candy_board_qws.SerialPort.resolve_modem_port()
 
 
 class SerialPort(object):
