@@ -2,6 +2,16 @@
 class SerialPortEmurator:
     def __init__(self):
         self.res = {
+            'AT+GSN': [
+                "AT+GSN",
+                "",
+                "",
+                "999999999999999",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'AT+QGDCNT=': [
                 "AT+QGDCNT=",
                 "",
@@ -133,15 +143,11 @@ class SerialPortEmurator:
                 "ATI",
                 "",
                 "",
-                "Manufacturer: MAN",
+                "MAN",
                 "",
-                "Model: MOD",
+                "MOD",
                 "",
                 "Revision: REV",
-                "",
-                "IMEI: 999999999999999",
-                "",
-                "+GCAP: +CGSM",
                 "",
                 "",
                 "",

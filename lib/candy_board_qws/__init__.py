@@ -471,6 +471,17 @@ class SockServer(threading.Thread):
         }
         return message
 
+    def _imei_show(self):
+        """
+        - Show IMEI
+        """
+        status, result = self.send_at("AT+GSN")
+        message = {
+            'status': status,
+            'result': result
+        }
+        return message
+
     def modem_show(self, cmd={}):
         status, result = self.send_at("ATI")
         man = "UNKNOWN"
@@ -480,10 +491,12 @@ class SockServer(threading.Thread):
         counter = None
         if status == "OK":
             info = result.split("\n")
-            man = info[0][14:]
-            mod = info[1][7:]
+            man = info[0]
+            mod = info[1]
             rev = info[2][10:]
-            imei = info[3][6:]
+            result = self._imei_show()
+            if result['status'] == "OK":
+                imei = result['result']
             result = self._counter_show()
             if result['status'] == "OK":
                 counter = result['result']
