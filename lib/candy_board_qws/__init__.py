@@ -339,10 +339,10 @@ class SockServer(threading.Thread):
         }
         return message
 
-    def apn_ls(self, cmd):
+    def apn_ls(self, cmd={}):
         return json.dumps(self._apn_ls())
 
-    def apn_set(self, cmd):
+    def apn_set(self, cmd={}):
         (name, user_id, password) = (cmd['name'], cmd['user_id'],
                                      cmd['password'])
         apn_id = "1"
@@ -368,13 +368,13 @@ class SockServer(threading.Thread):
         }
         return message
 
-    def apn_del(self, cmd):
+    def apn_del(self, cmd={}):
         apn_id = "1"
         if 'apn_id' in cmd:
             apn_id = cmd['apn_id']
         return json.dumps(self._apn_del(apn_id))
 
-    def network_show(self, cmd):
+    def network_show(self, cmd={}):
         status, result = self.send_at("AT+CSQ")
         rssi = ""
         network = "UNKNOWN"
@@ -420,7 +420,7 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
-    def sim_show(self, cmd):
+    def sim_show(self, cmd={}):
         state = "SIM_STATE_ABSENT"
         msisdn = ""
         imsi = ""
@@ -471,7 +471,7 @@ class SockServer(threading.Thread):
         }
         return message
 
-    def modem_show(self, cmd):
+    def modem_show(self, cmd={}):
         status, result = self.send_at("ATI")
         man = "UNKNOWN"
         mod = "UNKNOWN"
@@ -500,7 +500,7 @@ class SockServer(threading.Thread):
             message['result']['counter'] = counter
         return json.dumps(message)
 
-    def modem_reset(self, cmd):
+    def modem_reset(self, cmd={}):
         """
         - Remove all APN
         - Reset packet counter
@@ -520,7 +520,7 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
-    def service_version(self, cmd):
+    def service_version(self, cmd={}):
         message = {
             'status': 'OK',
             'result': {
