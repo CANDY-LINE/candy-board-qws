@@ -283,7 +283,7 @@ class SockServer(threading.Thread):
             print("[modem:IN] => [%s]" % line)
         return line
 
-    def send_at(self, cmd):
+    def send_at(self, cmd, ok="OK"):
         line = "%s\r" % cmd
         if self.debug:
             print("[modem:OUT] => [%s]" % line)
@@ -301,7 +301,7 @@ class SockServer(threading.Thread):
                 count = count + 1
             elif line == cmd:
                 continue
-            elif line == "OK" or line == "ERROR":
+            elif line == ok or line == "ERROR":
                 status = line
             elif line is None:
                 status = "UNKNOWN"
@@ -535,6 +535,21 @@ class SockServer(threading.Thread):
                 self._apn_del(apn['apn_id'])
             counter_reset_ret = self._counter_reset()
             status = counter_reset_ret['status']
+        message = {
+            'status': status,
+            'result': result
+        }
+        return json.dumps(message)
+
+    def modem_off(self, cmd={}):
+        """
+        PRIVATE COMMAND (not available from CLI)
+        - Power off
+        """
+        status, result = self.send_at("AT+QPOWD", "POWERED DOWN")
+        if status == "POWERED DOWN":
+            status = "OK"
+            result = ""
         message = {
             'status': status,
             'result': result
