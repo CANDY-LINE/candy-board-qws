@@ -295,7 +295,7 @@ class SockServer(threading.Thread):
         while True:
             line = self.read_line()
             if line is None:
-                if status is not None or count > 2:
+                if status is not None or count > 650:
                     break
                 time.sleep(0.1)
                 count = count + 1
