@@ -170,8 +170,8 @@ class SerialPort(object):
             return None
 
         for t in [
-                    '/dev/ttySC*', '/dev/ttyUSB*',
-                    '/dev/ttyACM*', '/dev/ttyAMA*'
+                    '/dev/ttyUSB*', '/dev/ttyACM*',
+                    '/dev/ttyAMA*', '/dev/ttySC*'
                 ]:
             for p in sorted(glob.glob(t)):
                 port = open_serial_port(p)
