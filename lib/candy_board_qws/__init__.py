@@ -291,10 +291,14 @@ class SockServer(threading.Thread):
         time.sleep(0.1)
         result = ""
         status = None
+        count = 0
         while True:
             line = self.read_line()
             if line is None:
-                break
+                if status is not None or count > 2:
+                    break
+                time.sleep(0.1)
+                count = count + 1
             elif line == cmd:
                 continue
             elif line == "OK" or line == "ERROR":
