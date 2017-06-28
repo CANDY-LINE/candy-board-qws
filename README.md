@@ -47,7 +47,7 @@ $ cat files.txt | xargs rm -rf
 ### Create local package
 
 ```
-$ tar czvf candy-board-qws.tgz --exclude .git --exclude .eggs --exclude build --exclude .cache .
+$ tar czvf candy-board-qws.tgz --exclude .git --exclude .eggs --exclude build --exclude dist --exclude .cache .
 ```
 
 ## Test
