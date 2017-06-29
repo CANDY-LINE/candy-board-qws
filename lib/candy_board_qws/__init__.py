@@ -22,12 +22,14 @@ import traceback
 # the same numbers).
 
 BPS_SYMS = {
-    4800:     termios.B4800,
     9600:     termios.B9600,
     19200:    termios.B19200,
     38400:    termios.B38400,
     57600:    termios.B57600,
-    115200:   termios.B115200
+    115200:   termios.B115200,
+    230400:   termios.B230400,
+    460800:   4100,
+    921600:   4103
     }
 
 
