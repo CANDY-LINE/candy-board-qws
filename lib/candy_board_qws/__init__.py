@@ -152,34 +152,56 @@ class SerialPort(object):
         return ret
 
     @staticmethod
+    def resolve_modem_baudrate(p):
+        if platform.system() != 'Linux':
+            return None
+
+        for bps in BPS_SYMS.keys():
+            port = SerialPort.open_serial_port(p, bps)
+            if port is None:
+                continue
+            ret = port.ping()
+            if ret is None:
+                port.close()
+                continue
+            if "OK" in ret:
+                port.close()
+                return bps
+            port.close()
+
+        return None
+
+    @staticmethod
+    def open_serial_port(p, bps):
+        for i in (0, 3):
+            port = None
+            try:
+                port = SerialPort(p, bps)
+                return port
+            except Exception:
+                if port:
+                    try:
+                        port.close()
+                    except Exception:
+                        pass
+                port = None
+                time.sleep(0.1)
+                pass
+        return None
+
+    @staticmethod
     def resolve_modem_port(bps=115200):
         if platform.system() != 'Linux':
             return None
 
-        def open_serial_port(p):
-            for i in (0, 3):
-                port = None
-                try:
-                    port = SerialPort(p, bps)
-                    return port
-                except Exception:
-                    if port:
-                        try:
-                            port.close()
-                        except Exception:
-                            pass
-                    port = None
-                    time.sleep(0.1)
-                    pass
-            return None
-
         for t in [
                     '/dev/QWS.*',
-                    '/dev/ttyUSB*', '/dev/ttyACM*',
-                    '/dev/ttyAMA*', '/dev/ttySC*'
+                    '/dev/ttyUSB*',
+                    '/dev/ttyACM*',
+                    '/dev/ttyAMA*'
                 ]:
             for p in sorted(glob.glob(t)):
-                port = open_serial_port(p)
+                port = SerialPort.open_serial_port(p, bps)
                 if port is None:
                     continue
                 ret = port.ping()
