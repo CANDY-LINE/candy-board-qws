@@ -559,6 +559,22 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
+    def modem_init(self, cmd={}):
+        """
+        PRIVATE COMMAND (not available from CLI)
+        - Set baudrate
+        """
+        status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+        with open(
+                '%s/.candy-board-qws-baudrate' % os.path.expanduser('~'),
+                'w') as f:
+            f.write(cmd['baudrate'])
+        message = {
+            'status': status,
+            'result': result
+        }
+        return json.dumps(message)
+
     def service_version(self, cmd={}):
         message = {
             'status': 'OK',
