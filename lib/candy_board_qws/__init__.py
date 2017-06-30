@@ -71,7 +71,7 @@ class SerialPort(object):
         """
         self.fd = os.open(serialport, os.O_RDWR | os.O_NOCTTY | os.O_NDELAY)
         attrs = termios.tcgetattr(self.fd)
-        bps_sym = bps_to_termios_sym(bps)
+        bps_sym = bps_to_termios_sym(int(bps))
         # Set I/O speed.
         attrs[ISPEED] = bps_sym
         attrs[OSPEED] = bps_sym
