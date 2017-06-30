@@ -105,9 +105,14 @@ class SerialPort(object):
     def read_until(self, until):
         buf = ""
         done = False
+        cnt = 0
         while not done:
             n = os.read(self.fd, 1)
             if n == '':
+                if cnt > 200:
+                    buf = None
+                    break
+                cnt = cnt + 1
                 # FIXME: Maybe worth blocking instead of busy-looping?
                 time.sleep(0.01)
                 continue
