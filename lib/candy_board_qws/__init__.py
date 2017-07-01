@@ -654,6 +654,7 @@ class SockServer(threading.Thread):
           to set modem RTC (if NW is capable)
           Enabled by default.
         - Set baudrate (optional)
+        - Reset packet counter (optional)
         """
         if 'tz_update' not in cmd or cmd['tz_update'] is True:
             status, result = self.send_at("AT+CTZU?")
@@ -664,6 +665,10 @@ class SockServer(threading.Thread):
                         break
         if status == "OK" and 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+        if status == "OK" and 'counter_reset' in cmd and cmd['counter_reset']:
+            counter_reset_ret = self._counter_reset()
+            status = counter_reset_ret['status']
+            result = counter_reset_ret['result']
         message = {
             'status': status,
             'result': result
