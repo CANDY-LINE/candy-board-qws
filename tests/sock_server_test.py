@@ -60,7 +60,10 @@ def test_apn_set_nok(setup_sock_server):
 
 def test_network_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
-    assert ret == '{"status": "OK", "result": {"rssi": "-105",' \
+    assert ret == '{"status": "OK", ' \
+        '"result": {' \
+        '"operator": "NTT DOCOMO", ' \
+        '"rssi": "-105",' \
         ' "network": "ONLINE", "rssiDesc": ""}}'
 
 

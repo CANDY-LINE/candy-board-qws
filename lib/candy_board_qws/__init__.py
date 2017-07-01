@@ -455,10 +455,11 @@ class SockServer(threading.Thread):
         return json.dumps(self._apn_del(apn_id))
 
     def network_show(self, cmd={}):
-        status, result = self.send_at("AT+CSQ")
         rssi = ""
         network = "UNKNOWN"
         rssi_desc = ""
+        operator = "UNKNOWN"
+        status, result = self.send_at("AT+CSQ")
         if status == "OK":
             rssi_level = int(result[5:].split(",")[0])
             if rssi_level == 0:
@@ -490,12 +491,16 @@ class SockServer(threading.Thread):
                     network = "ONLINE"
                 else:
                     network = "OFFLINE"
+                if status == "OK":
+                    status, result = self.send_at("AT+COPS?")
+                    operator = result.split(',')[2][1:-1]
         message = {
             'status': status,
             'result': {
                 'rssi': rssi,
                 'rssiDesc': rssi_desc,
-                'network': network
+                'network': network,
+                'operator': operator
             }
         }
         return json.dumps(message)
