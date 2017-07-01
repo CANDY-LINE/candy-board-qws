@@ -12,6 +12,37 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+IPR=': [
+                "AT+IPR=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+COPS=': [
+                "AT+COPS=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+CTZU=': [
+                "AT+CTZU=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+CTZU?': [
+                "AT+CTZU?",
+                "",
+                "",
+                "+CTZU: 0",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'AT+QPOWD': [
                 "AT+QPOWD",
                 "",
@@ -179,6 +210,9 @@ class SerialPortEmurator:
                 ""
             ]
         }
+
+    def available(self):
+        return True
 
     def read_line(self):
         if self.line < 0:

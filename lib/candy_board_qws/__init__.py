@@ -650,9 +650,20 @@ class SockServer(threading.Thread):
     def modem_init(self, cmd={}):
         """
         PRIVATE COMMAND (not available from CLI)
-        - Set baudrate
+        - Enable automatic timezone update with NITZ
+          to set modem RTC (if NW is capable)
+          Enabled by default.
+        - Set baudrate (optional)
         """
-        status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+        if 'tz_update' not in cmd or cmd['tz_update'] is True:
+            status, result = self.send_at("AT+CTZU?")
+            if status == "OK" and result == "+CTZU: 0":
+                for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
+                    status, result = self.send_at(at)
+                    if status != "OK":
+                        break
+        if status == "OK" and 'baudrate' in cmd:
+            status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
         message = {
             'status': status,
             'result': result

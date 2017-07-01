@@ -95,6 +95,12 @@ def test_modem_off(setup_sock_server):
     assert ret == '{"status": "OK", "result": ""}'
 
 
+def test_modem_init(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'modem', 'action': 'init', 'baudrate': '115200'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
 def test_service_version(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'service', 'action': 'version'})
