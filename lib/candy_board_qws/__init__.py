@@ -634,10 +634,6 @@ class SockServer(threading.Thread):
         - Set baudrate
         """
         status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
-        with open(
-                '%s/.candy-board-qws-baudrate' % os.path.expanduser('~'),
-                'w') as f:
-            f.write(cmd['baudrate'])
         message = {
             'status': status,
             'result': result
