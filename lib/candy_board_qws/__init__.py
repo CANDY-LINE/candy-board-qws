@@ -102,6 +102,9 @@ class SerialPort(object):
 
         self.ping()
 
+    def available(self):
+        return True
+
     def read_until(self, until):
         buf = ""
         done = False
@@ -222,6 +225,42 @@ class SerialPort(object):
         return None
 
 
+class LazySerialPort:
+    def __init__(self, serialport, bps):
+        self.serial = None
+        self.serialport = serialport
+        self.bps = bps
+
+    def _serial(self):
+        if self.serial is None:
+            self.serial = SerialPort(self.serialport, self.bps)
+        return self.serial
+
+    def available(self):
+        try:
+            self._serial()
+            return True
+        except OSError:
+            return False
+
+    def read_line(self):
+        return _serial().read_line()
+
+    def write(self, str):
+        return _serial().write(str)
+
+    def write_byte(self, byte):
+        return _serial().write_byte(byte)
+
+    def close(self):
+        if self.serial is None:
+            return
+        try:
+            return self.serial.close()
+        finally:
+            self.serial = None
+
+
 class SockServer(threading.Thread):
     def __init__(self, version, apn,
                  sock_path="/var/run/candy-board-service.sock", serial=None):
@@ -286,6 +325,8 @@ class SockServer(threading.Thread):
                     connection.close()
 
     def perform(self, cmd):
+        if self.serial is None or self.serial.available() is False:
+            return self.error_message("Modem is not ready")
         try:
             if cmd['category'][0] == '_':
                 raise AttributeError()
