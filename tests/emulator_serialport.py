@@ -2,6 +2,16 @@
 class SerialPortEmurator:
     def __init__(self):
         self.res = {
+            'AT+CCLK?': [
+                "AT+CCLK?",
+                "",
+                "",
+                "+CCLK: \"17/06/01,11:47:29+36\"",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'AT+QPOWD': [
                 "AT+QPOWD",
                 "",

@@ -74,9 +74,15 @@ def test_sim_show(setup_sock_server):
 def test_modem_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
     assert ret == '{"status": "OK", "result": ' \
-        '{"imei": "999999999999999", ' \
-        '"counter": {"rx": "39379", "tx": "7555"}, "model": "MOD", ' \
-        '"revision": "REV", "manufacturer": "MAN"}}'
+        '{' \
+        '"counter": {"rx": "39379", "tx": "7555"}, ' \
+        '"datetime": "17/06/01,11:47:29", ' \
+        '"imei": "999999999999999", ' \
+        '"timezone": 9.0, ' \
+        '"model": "MOD", ' \
+        '"manufacturer": "MAN", ' \
+        '"revision": "REV"' \
+        '}}'
 
 
 def test_modem_reset(setup_sock_server):

@@ -562,6 +562,17 @@ class SockServer(threading.Thread):
         }
         return message
 
+    def _timestamp_show(self):
+        """
+        - Show timestamp
+        """
+        status, result = self.send_at("AT+CCLK?")
+        message = {
+            'status': status,
+            'result': result
+        }
+        return message
+
     def modem_show(self, cmd={}):
         status, result = self.send_at("ATI")
         man = "UNKNOWN"
@@ -569,6 +580,8 @@ class SockServer(threading.Thread):
         rev = "UNKNOWN"
         imei = "UNKNOWN"
         counter = None
+        utc = None
+        timezone = None
         if status == "OK":
             info = result.split("\n")
             man = info[0]
@@ -580,6 +593,10 @@ class SockServer(threading.Thread):
             result = self._counter_show()
             if result['status'] == "OK":
                 counter = result['result']
+            result = self._timestamp_show()
+            if result['status'] == "OK":
+                utc = result['result'][8:-4]
+                timezone_hrs = float(result['result'][-4:-1]) / 4
         message = {
             'status': status,
             'result': {
@@ -587,6 +604,8 @@ class SockServer(threading.Thread):
                 'model': mod,
                 'revision': rev,
                 'imei': imei,
+                'datetime': utc,
+                'timezone': timezone_hrs
             }
         }
         if counter:
