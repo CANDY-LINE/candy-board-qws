@@ -509,7 +509,10 @@ class SockServer(threading.Thread):
             imsi = result
             state = "SIM_STATE_READY"
             status, result = self.send_at("AT+CNUM")
-            msisdn = result[6:].split(",")[1].translate(None, '"')
+            if len(result) > 5:
+                msisdn = result[6:].split(",")[1].translate(None, '"')
+            else:
+                msisdn = ''
         message = {
             'status': status,
             'result': {
