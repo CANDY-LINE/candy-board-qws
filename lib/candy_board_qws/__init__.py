@@ -244,13 +244,13 @@ class LazySerialPort:
             return False
 
     def read_line(self):
-        return _serial().read_line()
+        return self._serial().read_line()
 
     def write(self, str):
-        return _serial().write(str)
+        return self._serial().write(str)
 
     def write_byte(self, byte):
-        return _serial().write_byte(byte)
+        return self._serial().write_byte(byte)
 
     def close(self):
         if self.serial is None:
