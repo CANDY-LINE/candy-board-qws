@@ -669,9 +669,9 @@ class SockServer(threading.Thread):
                     status, result = self.send_at(at)
                     if status != "OK":
                         break
-        if status == "OK" and 'baudrate' in cmd:
+        if 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
-        if status == "OK" and 'counter_reset' in cmd and cmd['counter_reset']:
+        if 'counter_reset' in cmd and cmd['counter_reset']:
             counter_reset_ret = self._counter_reset()
             status = counter_reset_ret['status']
             result = counter_reset_ret['result']
