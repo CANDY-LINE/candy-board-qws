@@ -23,7 +23,6 @@ def setup_sock_server(request):
     serialport = SerialPortEmurator()
     server = candy_board_qws.SockServer(
         'devel',
-        {'apn': 'apn', 'user': 'apn_user', 'password': 'apn_password'},
         '/var/run/candy-board-service.sock',
         serialport)
     server.debug = True

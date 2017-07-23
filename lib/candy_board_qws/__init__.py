@@ -274,7 +274,7 @@ class LazySerialPort:
 
 
 class SockServer(threading.Thread):
-    def __init__(self, version, apn,
+    def __init__(self, version,
                  sock_path="/var/run/candy-board-service.sock", serial=None):
         super(SockServer, self).__init__()
         self.version = version
@@ -282,13 +282,6 @@ class SockServer(threading.Thread):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.serial = serial
         self.debug = False
-        if apn:
-            cmd = {
-                'name': apn['apn'],
-                'user_id': apn['user'],
-                'password': apn['password']
-            }
-            self.apn_set(cmd)
 
     def recv(self, connection, size):
         ready, _, _ = select.select([connection], [], [], 5)
