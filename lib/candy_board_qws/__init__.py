@@ -678,7 +678,7 @@ class SockServer(threading.Thread):
         """
         if 'tz_update' not in cmd or cmd['tz_update'] is True:
             status, result = self.send_at("AT+CTZU?")
-            if status == "OK" and result == "+CTZU: 0":
+            if status == "OK":
                 for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
                     status, result = self.send_at(at)
                     if status != "OK":
