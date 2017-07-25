@@ -2,7 +2,7 @@
 
 [![GitHub release](https://img.shields.io/github/release/CANDY-LINE/candy-board-qws.svg)](https://github.com/CANDY-LINE/candy-board-qws/releases/latest)
 [![Build Status](https://travis-ci.org/CANDY-LINE/candy-board-qws.svg?branch=master)](https://travis-ci.org/CANDY-LINE/candy-board-qws)
-[![License BSD3](https://img.shields.io/github/license/CANDY-LINE/candy-board-qws.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![License ASL 2.0](https://img.shields.io/github/license/CANDY-LINE/candy-board-qws.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Base CANDY LINE boards service for Quectel Wireless Solutions Modules
 
@@ -29,7 +29,7 @@ On Mac OS:
 
 ```
 $ brew install pandoc
-$ pip install pypandoc
+$ pip install pypandoc twine
 ```
 
 ### Local Installation test
@@ -38,16 +38,30 @@ $ pip install pypandoc
 $ ./setup.py install --record files.txt
 ```
 
+ * `sudo` is required in some cases
+
 ### Local Uninstallation test
 
 ```
 $ cat files.txt | xargs rm -rf
 ```
 
+### Create local package
+
+```
+$ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
+```
+
 ## Test
 
 ```
 $ ./setup.py test
+```
+
+## Publish
+
+```
+$ ./setup.py publish
 ```
 
 # Revision history
