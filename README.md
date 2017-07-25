@@ -29,7 +29,7 @@ On Mac OS:
 
 ```
 $ brew install pandoc
-$ pip install pypandoc
+$ pip install pypandoc twine
 ```
 
 ### Local Installation test
