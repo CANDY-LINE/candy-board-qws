@@ -58,6 +58,12 @@ $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 $ ./setup.py test
 ```
 
+## Publish
+
+```
+$ ./setup.py publish
+```
+
 # Revision history
 
 * 1.0.0
