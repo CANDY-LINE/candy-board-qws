@@ -65,7 +65,7 @@ def bps_to_termios_sym(bps):
 # import candy_board_qws
 # serial = candy_board_qws.SerialPort("/dev/ttyUSB2", 115200)
 # server = candy_board_qws.SockServer(
-#     "1.0.0", None,
+#     "1.0.0",
 #     "/var/run/candy-board-service.sock", serial)
 # server.debug = True
 # server.apn_ls()
