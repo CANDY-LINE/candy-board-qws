@@ -217,7 +217,7 @@ class SerialPort(object):
             return None
 
         for t in [
-                    '/dev/QWS.*',
+                    '/dev/QWS.*.MODEM',
                     '/dev/ttyUSB*',
                     '/dev/ttySC*'
                 ]:
