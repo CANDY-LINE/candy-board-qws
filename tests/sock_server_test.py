@@ -106,6 +106,20 @@ def test_modem_reset(setup_sock_server):
     assert ret == '{"status": "OK", "result": ""}'
 
 
+def test_modem_reset_with_counter_opts_CSV(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'modem', 'action': 'reset', 'opts': 'counter=yes '}
+    )
+    assert ret == '{"status": "OK", "result": "counter"}'
+
+
+def test_modem_reset_with_counter_opts_JSON(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'modem', 'action': 'reset', 'opts': '{"counter":"yes"}'}
+    )
+    assert ret == '{"status": "OK", "result": "counter"}'
+
+
 def test_modem_off(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'off'})
     assert ret == '{"status": "OK", "result": ""}'
