@@ -431,8 +431,8 @@ class SockServer(threading.Thread):
         (name, user_id, password) = (cmd['name'], cmd['user_id'],
                                      cmd['password'])
         apn_id = "1"
-        if 'apn_id' in cmd:
-            apn_id = cmd['apn_id']
+        if 'id' in cmd:
+            apn_id = cmd['id']
         status, result = self.send_at(("AT+CGDCONT=%s,\"IP\",\"%s\"," +
                                       "\"0.0.0.0\",0,0") % (apn_id, name))
         if status == "OK":
@@ -455,8 +455,8 @@ class SockServer(threading.Thread):
 
     def apn_del(self, cmd={}):
         apn_id = "1"
-        if 'apn_id' in cmd:
-            apn_id = cmd['apn_id']
+        if 'id' in cmd:
+            apn_id = cmd['id']
         return json.dumps(self._apn_del(apn_id))
 
     def network_show(self, cmd={}):
