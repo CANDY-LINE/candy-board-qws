@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
-
+* 1.1.0
+    - Add a new option to reset only packet counter
+    - Filter USB serial ports for ppp
 * 1.0.0
     - Initial public release
