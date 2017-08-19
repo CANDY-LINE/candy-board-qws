@@ -19,7 +19,7 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-version = "1.0.0"
+version = "1.1.0"
 
 try:
     import pypandoc
@@ -72,7 +72,7 @@ setup(
                     'Operating System :: POSIX :: Linux',
                     'Topic :: System :: Hardware',
                  ],
-    keywords=('CANDY EGG', 'CANDY LINE'),
+    keywords=('CANDY RED', 'CANDY EGG', 'CANDY LINE'),
     tests_require=['pytest-cov>=2.2.0',
                    'pytest>=2.6.4',
                    'terminaltables>=1.2.1'],

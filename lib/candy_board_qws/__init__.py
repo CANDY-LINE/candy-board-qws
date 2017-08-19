@@ -65,7 +65,7 @@ def bps_to_termios_sym(bps):
 # import candy_board_qws
 # serial = candy_board_qws.SerialPort("/dev/ttyUSB2", 115200)
 # server = candy_board_qws.SockServer(
-#     "1.0.0", None,
+#     "1.0.0",
 #     "/var/run/candy-board-service.sock", serial)
 # server.debug = True
 # server.apn_ls()
@@ -217,7 +217,7 @@ class SerialPort(object):
             return None
 
         for t in [
-                    '/dev/QWS.*',
+                    '/dev/QWS.*.MODEM',
                     '/dev/ttyUSB*',
                     '/dev/ttySC*'
                 ]:
@@ -431,8 +431,8 @@ class SockServer(threading.Thread):
         (name, user_id, password) = (cmd['name'], cmd['user_id'],
                                      cmd['password'])
         apn_id = "1"
-        if 'apn_id' in cmd:
-            apn_id = cmd['apn_id']
+        if 'id' in cmd:
+            apn_id = cmd['id']
         status, result = self.send_at(("AT+CGDCONT=%s,\"IP\",\"%s\"," +
                                       "\"0.0.0.0\",0,0") % (apn_id, name))
         if status == "OK":
@@ -455,8 +455,8 @@ class SockServer(threading.Thread):
 
     def apn_del(self, cmd={}):
         apn_id = "1"
-        if 'apn_id' in cmd:
-            apn_id = cmd['apn_id']
+        if 'id' in cmd:
+            apn_id = cmd['id']
         return json.dumps(self._apn_del(apn_id))
 
     def network_show(self, cmd={}):
@@ -625,20 +625,41 @@ class SockServer(threading.Thread):
             message['result']['counter'] = counter
         return json.dumps(message)
 
+    def _parse_opts(self, cmd={}):
+        opts = {}
+        if 'opts' in cmd:
+            try:
+                opts = json.loads(cmd['opts'])
+            except Exception:
+                try:
+                    entries = map(lambda e: e.split('='),
+                                  cmd['opts'].split(','))
+                    for (k, v) in entries:
+                        opts[k.strip()] = v.strip()
+                except Exception:
+                    pass
+        return opts
+
     def modem_reset(self, cmd={}):
         """
-        - Remove all APN
-        - Reset packet counter
+        - opts counter=yes
+            - Reset packet counter
+        - no-opts or counter!=yes
+            - Reset packet counter
+            - Remove all APN
         """
-        apn_ls_ret = self._apn_ls()
-        status = apn_ls_ret['status']
-        result = ''
-        if apn_ls_ret['status'] == "OK":
-            apns = apn_ls_ret['result']['apns']
-            for apn in apns:
-                self._apn_del(apn['apn_id'])
-            counter_reset_ret = self._counter_reset()
-            status = counter_reset_ret['status']
+        result = 'counter'
+        counter_reset_ret = self._counter_reset()
+        status = counter_reset_ret['status']
+        opts = self._parse_opts(cmd)
+        if 'counter' not in opts or opts['counter'] != 'yes':
+            result = ''
+            apn_ls_ret = self._apn_ls()
+            status = apn_ls_ret['status']
+            if apn_ls_ret['status'] == "OK":
+                apns = apn_ls_ret['result']['apns']
+                for apn in apns:
+                    self._apn_del(apn['apn_id'])
         message = {
             'status': status,
             'result': result
