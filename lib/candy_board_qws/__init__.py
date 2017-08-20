@@ -401,10 +401,13 @@ class SockServer(threading.Thread):
                 status, result = self.send_at("AT$QCPDPP?")
                 creds_list = []
                 if status == "OK":
-                    creds_list = map(lambda e: e[2].translate(None, '"'),
-                                     filter(lambda e: len(e) > 2,
-                                            map(lambda e: e[9:].split(","),
-                                                result.split("\n"))))
+                    def to_user(e):
+                        if len(e) > 2:
+                            return e[2].translate(None, '"')
+                        return ''
+                    creds_list = map(lambda e: to_user(e),
+                                     map(lambda e: e[9:].split(","),
+                                         result.split("\n")))
             except IndexError:
                 pass
         for i in range(len(id_name_list)):
@@ -413,7 +416,7 @@ class SockServer(threading.Thread):
                     'apn_id': id_name[0],
                     'apn': id_name[1]
                 }
-                if i < len(creds_list):
+                if creds_list[i]:
                     apn['user'] = creds_list[i]
                 apn_list.append(apn)
         message = {
