@@ -401,10 +401,13 @@ class SockServer(threading.Thread):
                 status, result = self.send_at("AT$QCPDPP?")
                 creds_list = []
                 if status == "OK":
-                    creds_list = map(lambda e: e[2].translate(None, '"'),
-                                     filter(lambda e: len(e) > 2,
-                                            map(lambda e: e[9:].split(","),
-                                                result.split("\n"))))
+                    def to_user(e):
+                        if len(e) > 2:
+                            return e[2].translate(None, '"')
+                        return ''
+                    creds_list = map(lambda e: to_user(e),
+                                     map(lambda e: e[9:].split(","),
+                                         result.split("\n")))
             except IndexError:
                 pass
         for i in range(len(id_name_list)):
@@ -413,7 +416,7 @@ class SockServer(threading.Thread):
                     'apn_id': id_name[0],
                     'apn': id_name[1]
                 }
-                if i < len(creds_list):
+                if creds_list[i]:
                     apn['user'] = creds_list[i]
                 apn_list.append(apn)
         message = {
@@ -594,7 +597,7 @@ class SockServer(threading.Thread):
         imei = "UNKNOWN"
         counter = None
         utc = None
-        timezone = None
+        timezone_hrs = None
         if status == "OK":
             info = result.split("\n")
             man = info[0]
@@ -692,13 +695,26 @@ class SockServer(threading.Thread):
         """
         if 'tz_update' not in cmd or cmd['tz_update'] is True:
             status, result = self.send_at("AT+CTZU?")
-            if status == "OK":
-                for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
-                    status, result = self.send_at(at)
-                    if status != "OK":
-                        break
+            if status != "OK":
+                message = {
+                    'status': status,
+                    'result': result,
+                    'cmd': 'tz_update'
+                }
+                return json.dumps(message)
+            for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
+                status, result = self.send_at(at)
+                if status != "OK":
+                    break
         if 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+            if status != "OK":
+                message = {
+                    'status': status,
+                    'result': result,
+                    'cmd': 'baudrate'
+                }
+                return json.dumps(message)
         if 'counter_reset' in cmd and cmd['counter_reset']:
             counter_reset_ret = self._counter_reset()
             status = counter_reset_ret['status']

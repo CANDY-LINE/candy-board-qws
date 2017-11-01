@@ -65,6 +65,9 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.2.0
+    - Return precise error on `modem init` command error
+    - Fix ValueError
 * 1.1.0
     - Add a new option to reset only packet counter
     - Filter USB serial ports for ppp
