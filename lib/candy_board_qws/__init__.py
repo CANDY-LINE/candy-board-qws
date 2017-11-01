@@ -597,7 +597,7 @@ class SockServer(threading.Thread):
         imei = "UNKNOWN"
         counter = None
         utc = None
-        timezone = None
+        timezone_hrs = None
         if status == "OK":
             info = result.split("\n")
             man = info[0]
