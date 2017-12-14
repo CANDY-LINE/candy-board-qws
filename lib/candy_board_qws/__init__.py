@@ -492,22 +492,14 @@ class SockServer(threading.Thread):
                 rssi_desc = "OR_MORE"
             else:
                 rssi_desc = "NO_SIGANL"
-            status, result = self.send_at("AT+CPAS")
-            if status == "OK":
-                state_level = int(result[6:])
-                if state_level == 4:
-                    network = "ONLINE"
-                else:
-                    network = "OFFLINE"
-                if status == "OK":
-                    status, result = self.send_at("AT+COPS?")
-                    operator = result.split(',')[2][1:-1]
+            status, result = self.send_at("AT+COPS?")
+            operator = result.split(',')[2][1:-1]
         message = {
             'status': status,
             'result': {
                 'rssi': rssi,
                 'rssiDesc': rssi_desc,
-                'network': network,
+                'network': 'N/A',
                 'operator': operator
             }
         }

@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.2.1
+    - Set network property value to 'N/A' as the value isn't available on QWS modules
 * 1.2.0
     - Return precise error on `modem init` command error
     - Fix ValueError

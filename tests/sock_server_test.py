@@ -77,7 +77,7 @@ def test_network_show(setup_sock_server):
         '"result": {' \
         '"operator": "NTT DOCOMO", ' \
         '"rssi": "-105",' \
-        ' "network": "ONLINE", "rssiDesc": ""}}'
+        ' "network": "N/A", "rssiDesc": ""}}'
 
 
 def test_sim_show(setup_sock_server):
