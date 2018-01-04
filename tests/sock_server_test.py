@@ -26,6 +26,7 @@ def setup_sock_server(request):
         '/var/run/candy-board-service.sock',
         serialport)
     server.debug = True
+    server.seralport = serialport
     return server
 
 
@@ -77,6 +78,37 @@ def test_network_show(setup_sock_server):
         '"result": {' \
         '"operator": "NTT DOCOMO", ' \
         '"rssi": "-105",' \
+        ' "network": "N/A", "rssiDesc": ""}}'
+
+
+def test_network_show_no_signal(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS?'] = [
+        "AT+COPS?",
+        "",
+        "",
+        "+COPS: 0",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CSQ'] = [
+        "AT+CSQ",
+        "",
+        "",
+        "+CSQ: 12,99",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
+    assert ret == '{"status": "OK", ' \
+        '"result": {' \
+        '"operator": "N/A", ' \
+        '"rssi": "-89",' \
         ' "network": "N/A", "rssiDesc": ""}}'
 
 

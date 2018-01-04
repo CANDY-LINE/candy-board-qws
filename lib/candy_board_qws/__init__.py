@@ -493,7 +493,10 @@ class SockServer(threading.Thread):
             else:
                 rssi_desc = "NO_SIGANL"
             status, result = self.send_at("AT+COPS?")
-            operator = result.split(',')[2][1:-1]
+            try:
+                operator = result.split(',')[2][1:-1]
+            except IndexError:
+                operator = 'N/A'
         message = {
             'status': status,
             'result': {

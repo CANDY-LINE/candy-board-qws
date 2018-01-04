@@ -15,7 +15,7 @@
 
 class SerialPortEmurator:
     def __init__(self):
-        self.res = {
+        self.org_res = {
             'AT+COPS?': [
                 "AT+COPS?",
                 "",
@@ -234,6 +234,10 @@ class SerialPortEmurator:
                 ""
             ]
         }
+        self.reset_res()
+
+    def reset_res(self):
+        self.res = dict(self.org_res)
 
     def available(self):
         return True
