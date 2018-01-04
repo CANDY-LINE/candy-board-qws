@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.2.2
+    - Set operator property value to 'N/A' when there's no available operator
 * 1.2.1
     - Set network property value to 'N/A' as the value isn't available on QWS modules
 * 1.2.0
