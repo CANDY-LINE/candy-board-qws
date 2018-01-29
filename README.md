@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.2.3
+    - Replace `ttySC*` in the serial port candidate list with `ttySC1` as `ttySC0` is never used for the QWS module
 * 1.2.2
     - Set operator property value to 'N/A' when there's no available operator
 * 1.2.1
