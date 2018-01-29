@@ -219,7 +219,7 @@ class SerialPort(object):
         for t in [
                     '/dev/QWS.*.MODEM',
                     '/dev/ttyUSB*',
-                    '/dev/ttySC*'
+                    '/dev/ttySC1'
                 ]:
             for p in sorted(glob.glob(t)):
                 port = SerialPort.open_serial_port(p, bps)
