@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 CANDY LINE INC.
+# Copyright (c) 2018 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -218,7 +218,6 @@ class SerialPort(object):
 
         for t in [
                     '/dev/QWS.*.MODEM',
-                    '/dev/ttyUSB*',
                     '/dev/ttySC1'
                 ]:
             for p in sorted(glob.glob(t)):
