@@ -218,7 +218,6 @@ class SerialPort(object):
 
         for t in [
                     '/dev/QWS.*.MODEM',
-                    '/dev/ttyUSB*',
                     '/dev/ttySC1'
                 ]:
             for p in sorted(glob.glob(t)):
