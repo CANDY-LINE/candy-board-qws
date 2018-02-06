@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.2.4
+    - Exclude `/dev/ttyUSB*` from the candidate serial port list as the search function interferes with other process use of serial port
 * 1.2.3
     - Replace `ttySC*` in the serial port candidate list with `ttySC1` as `ttySC0` is never used for the QWS module
 * 1.2.2
