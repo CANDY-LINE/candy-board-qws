@@ -185,6 +185,17 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+CREG?': [
+                "AT+CREG?",
+                "",
+                "",
+                "+CGREG: 0,1",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'AT+CNUM': [
                 "AT+CNUM",
                 "",

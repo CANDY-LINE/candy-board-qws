@@ -61,6 +61,16 @@ CC = 6
 def bps_to_termios_sym(bps):
     return BPS_SYMS[bps]
 
+
+CREG_STATS = [
+    "Unregistered",
+    "Registered",
+    "Searching",
+    "Denied",
+    "Unknown",
+    "Roaming"
+]
+
 # For local debugging:
 # import candy_board_qws
 # serial = candy_board_qws.SerialPort("/dev/ttyUSB2", 115200)
@@ -495,14 +505,21 @@ class SockServer(threading.Thread):
             try:
                 operator = result.split(',')[2][1:-1]
             except IndexError:
-                operator = 'N/A'
+                operator = "N/A"
+            status, result = self.send_at("AT+CREG?")
+            try:
+                creg = int(result.split(",")[1])
+                registration = CREG_STATS[creg]
+            except IndexError:
+                registration = "N/A"
         message = {
             'status': status,
             'result': {
                 'rssi': rssi,
                 'rssiDesc': rssi_desc,
                 'network': 'N/A',
-                'operator': operator
+                'operator': operator,
+                'registration': registration
             }
         }
         return json.dumps(message)

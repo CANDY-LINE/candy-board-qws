@@ -77,8 +77,9 @@ def test_network_show(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"operator": "NTT DOCOMO", ' \
-        '"rssi": "-105",' \
-        ' "network": "N/A", "rssiDesc": ""}}'
+        '"rssi": "-105", ' \
+        '"network": "N/A", "rssiDesc": "", ' \
+        '"registration": "Registered"}}'
 
 
 def test_network_show_no_signal(setup_sock_server):
@@ -104,12 +105,24 @@ def test_network_show_no_signal(setup_sock_server):
         "OK",
         ""
     ]
+    server.seralport.res['AT+CREG?'] = [
+        "AT+CREG?",
+        "",
+        "",
+        "+CGREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"operator": "N/A", ' \
-        '"rssi": "-89",' \
-        ' "network": "N/A", "rssiDesc": ""}}'
+        '"rssi": "-89", ' \
+        '"network": "N/A", "rssiDesc": "", ' \
+        '"registration": "Searching"}}'
 
 
 def test_sim_show(setup_sock_server):
