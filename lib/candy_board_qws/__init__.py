@@ -62,7 +62,7 @@ def bps_to_termios_sym(bps):
     return BPS_SYMS[bps]
 
 
-CREG_STATS = [
+CGREG_STATS = [
     "Unregistered",
     "Registered",
     "Searching",
@@ -506,10 +506,10 @@ class SockServer(threading.Thread):
                 operator = result.split(',')[2][1:-1]
             except IndexError:
                 operator = "N/A"
-            status, result = self.send_at("AT+CREG?")
+            status, result = self.send_at("AT+CGREG?")
             try:
                 creg = int(result.split(",")[1])
-                registration = CREG_STATS[creg]
+                registration = CGREG_STATS[creg]
             except IndexError:
                 registration = "N/A"
         message = {

@@ -105,8 +105,8 @@ def test_network_show_no_signal(setup_sock_server):
         "OK",
         ""
     ]
-    server.seralport.res['AT+CREG?'] = [
-        "AT+CREG?",
+    server.seralport.res['AT+CGREG?'] = [
+        "AT+CGREG?",
         "",
         "",
         "+CGREG: 0,2",
