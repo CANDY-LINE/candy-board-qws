@@ -79,7 +79,7 @@ def test_network_show(setup_sock_server):
         '"operator": "NTT DOCOMO", ' \
         '"rssi": "-105", ' \
         '"network": "N/A", "rssiDesc": "", ' \
-        '"registration": "Registered"}}'
+        '"registration": {"cs": "Registered", "ps": "Registered"}}}'
 
 
 def test_network_show_no_signal(setup_sock_server):
@@ -105,6 +105,73 @@ def test_network_show_no_signal(setup_sock_server):
         "OK",
         ""
     ]
+    server.seralport.res['AT+CREG?'] = [
+        "AT+CREG?",
+        "",
+        "",
+        "+CREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CGREG?'] = [
+        "AT+CGREG?",
+        "",
+        "",
+        "+CGREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
+    assert ret == '{"status": "OK", ' \
+        '"result": {' \
+        '"operator": "N/A", ' \
+        '"rssi": "-89", ' \
+        '"network": "N/A", ' \
+        '"rssiDesc": "", ' \
+        '"registration": ' \
+        '{"cs": "Searching", "ps": "Searching"}}}'
+
+
+def test_network_show_denied_in_cs_networks(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS?'] = [
+        "AT+COPS?",
+        "",
+        "",
+        "+COPS: 0",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CSQ'] = [
+        "AT+CSQ",
+        "",
+        "",
+        "+CSQ: 12,99",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CREG?'] = [
+        "AT+CREG?",
+        "",
+        "",
+        "+CREG: 0,3",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     server.seralport.res['AT+CGREG?'] = [
         "AT+CGREG?",
         "",
@@ -122,7 +189,8 @@ def test_network_show_no_signal(setup_sock_server):
         '"operator": "N/A", ' \
         '"rssi": "-89", ' \
         '"network": "N/A", "rssiDesc": "", ' \
-        '"registration": "Searching"}}'
+        '"registration": ' \
+        '{"cs": "Denied", "ps": "Searching"}}}'
 
 
 def test_sim_show(setup_sock_server):

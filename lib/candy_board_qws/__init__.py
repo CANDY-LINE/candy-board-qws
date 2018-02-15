@@ -506,12 +506,22 @@ class SockServer(threading.Thread):
                 operator = result.split(',')[2][1:-1]
             except IndexError:
                 operator = "N/A"
+            registration = {
+                "cs": "N/A",
+                "ps": "N/A"
+            }
+            status, result = self.send_at("AT+CREG?")
+            try:
+                cs = int(result.split(",")[1])
+                registration["cs"] = CGREG_STATS[cs]
+            except IndexError:
+                pass
             status, result = self.send_at("AT+CGREG?")
             try:
-                creg = int(result.split(",")[1])
-                registration = CGREG_STATS[creg]
+                ps = int(result.split(",")[1])
+                registration["ps"] = CGREG_STATS[ps]
             except IndexError:
-                registration = "N/A"
+                pass
         message = {
             'status': status,
             'result': {
