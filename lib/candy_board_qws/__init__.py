@@ -442,11 +442,22 @@ class SockServer(threading.Thread):
     def apn_set(self, cmd={}):
         (name, user_id, password) = (cmd['name'], cmd['user_id'],
                                      cmd['password'])
+        if 'type' in cmd:
+            t = cmd['type']
+            if t == 'ipv4':
+                pdp = 'IP'
+            elif t == 'ipv6':
+                pdp = 'IPV6'
+            else:
+                pdp = 'IPV4V6'
+        else:
+            pdp = 'IP'
+
         apn_id = "1"
         if 'id' in cmd:
             apn_id = cmd['id']
-        status, result = self.send_at(("AT+CGDCONT=%s,\"IP\",\"%s\"," +
-                                      "\"0.0.0.0\",0,0") % (apn_id, name))
+        status, result = self.send_at(("AT+CGDCONT=%s,\"%s\",\"%s\"," +
+                                      ",0,0") % (apn_id, pdp, name))
         if status == "OK":
             status, result = self.send_at(("AT$QCPDPP=%s,3,\"%s\",\"%s\"") %
                                           (apn_id, password, user_id))
