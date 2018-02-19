@@ -248,6 +248,24 @@ def test_modem_init(setup_sock_server):
     assert ret == '{"status": "OK", "result": ""}'
 
 
+def test_modem_init_qnvw_failure(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QNVW='] = [
+        "AT+QNVW=",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'modem',
+         'action': 'init',
+         'baudrate': '115200',
+         'counter_reset': True
+         })
+    assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
+
+
 def test_service_version(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'service', 'action': 'version'})

@@ -682,6 +682,7 @@ class SockServer(threading.Thread):
         - no-opts or counter!=yes
             - Reset packet counter
             - Remove all APN
+            - Reset Phone Functionality
         """
         result = 'counter'
         counter_reset_ret = self._counter_reset()
@@ -695,6 +696,11 @@ class SockServer(threading.Thread):
                 apns = apn_ls_ret['result']['apns']
                 for apn in apns:
                     self._apn_del(apn['apn_id'])
+            status, qnvw_result = self.send_at(
+                'AT+QNVW=4548,0,"0000400C00000210"')
+            if status != "OK":
+                result = qnvw_result
+
         message = {
             'status': status,
             'result': result
@@ -722,6 +728,7 @@ class SockServer(threading.Thread):
         - Enable automatic timezone update with NITZ
           to set modem RTC (if NW is capable)
           Enabled by default.
+        - Reset Phone Functionality
         - Set baudrate (optional)
         - Reset packet counter (optional)
         """
@@ -742,6 +749,15 @@ class SockServer(threading.Thread):
             counter_reset_ret = self._counter_reset()
             status = counter_reset_ret['status']
             result = counter_reset_ret['result']
+        status, result_qnvw = self.send_at(
+            'AT+QNVW=4548,0,"0000400C00000210"')
+        if status != "OK":
+            message = {
+                'status': status,
+                'result': result_qnvw,
+                'cmd': 'AT+QNVW'
+            }
+            return json.dumps(message)
         if 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
             if status != "OK":

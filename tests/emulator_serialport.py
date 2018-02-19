@@ -240,6 +240,13 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+QNVW=': [
+                "AT+QNVW=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'ATI': [
                 "ATI",
                 "",
