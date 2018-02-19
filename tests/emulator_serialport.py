@@ -185,6 +185,28 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+CREG?': [
+                "AT+CREG?",
+                "",
+                "",
+                "+CREG: 0,1",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+CGREG?': [
+                "AT+CGREG?",
+                "",
+                "",
+                "+CGREG: 0,1",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'AT+CNUM': [
                 "AT+CNUM",
                 "",
@@ -212,6 +234,24 @@ class SerialPortEmurator:
                 "",
                 "",
                 "+CPAS: 4",  # "+CPAS: 0"
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+QNVW=': [
+                "AT+QNVW=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+CFUN?': [
+                "AT+CFUN?",
+                "",
+                "",
+                "+CFUN: 1",
                 "",
                 "",
                 "",

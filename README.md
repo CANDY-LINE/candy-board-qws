@@ -65,6 +65,10 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.3.0
+    - Add a new property `registration` to `network show` command result in order to show the network registration status
+    - Add new commands to register to/deregister from a network
+    - Perform phone functionality reset on modem initialization and modem reset
 * 1.2.4
     - Exclude `/dev/ttyUSB*` from the candidate serial port list as the search function interferes with other process use of serial port
 * 1.2.3

@@ -77,8 +77,9 @@ def test_network_show(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"operator": "NTT DOCOMO", ' \
-        '"rssi": "-105",' \
-        ' "network": "N/A", "rssiDesc": ""}}'
+        '"rssi": "-105", ' \
+        '"network": "N/A", "rssiDesc": "", ' \
+        '"registration": {"cs": "Registered", "ps": "Registered"}}}'
 
 
 def test_network_show_no_signal(setup_sock_server):
@@ -104,12 +105,149 @@ def test_network_show_no_signal(setup_sock_server):
         "OK",
         ""
     ]
+    server.seralport.res['AT+CREG?'] = [
+        "AT+CREG?",
+        "",
+        "",
+        "+CREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CGREG?'] = [
+        "AT+CGREG?",
+        "",
+        "",
+        "+CGREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"operator": "N/A", ' \
-        '"rssi": "-89",' \
-        ' "network": "N/A", "rssiDesc": ""}}'
+        '"rssi": "-89", ' \
+        '"network": "N/A", ' \
+        '"rssiDesc": "", ' \
+        '"registration": ' \
+        '{"cs": "Searching", "ps": "Searching"}}}'
+
+
+def test_network_show_denied_in_cs_networks(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS?'] = [
+        "AT+COPS?",
+        "",
+        "",
+        "+COPS: 0",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CSQ'] = [
+        "AT+CSQ",
+        "",
+        "",
+        "+CSQ: 12,99",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CREG?'] = [
+        "AT+CREG?",
+        "",
+        "",
+        "+CREG: 0,3",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+CGREG?'] = [
+        "AT+CGREG?",
+        "",
+        "",
+        "+CGREG: 0,2",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
+    assert ret == '{"status": "OK", ' \
+        '"result": {' \
+        '"operator": "N/A", ' \
+        '"rssi": "-89", ' \
+        '"network": "N/A", "rssiDesc": "", ' \
+        '"registration": ' \
+        '{"cs": "Denied", "ps": "Searching"}}}'
+
+
+def test_network_deregister(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'deregister'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_network_register(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register'})
+    assert ret == '{"status": "OK", "result": {"mode": "0"}}'
+
+
+def test_network_register_44099(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register', 'operator': '44099'})
+    assert ret == '{"status": "OK", "result": {"mode": "1"}}'
+
+
+def test_network_register_44099_auto(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register',
+            'operator': '44099', 'auto': True})
+    assert ret == '{"status": "OK", "result": {"mode": "4"}}'
 
 
 def test_sim_show(setup_sock_server):
@@ -125,6 +263,34 @@ def test_modem_show(setup_sock_server):
         '{' \
         '"counter": {"rx": "39379", "tx": "7555"}, ' \
         '"datetime": "17/06/01,11:47:29", ' \
+        '"functionality": "Full", ' \
+        '"imei": "999999999999999", ' \
+        '"timezone": 9.0, ' \
+        '"model": "MOD", ' \
+        '"manufacturer": "MAN", ' \
+        '"revision": "REV"' \
+        '}}'
+
+
+def test_modem_show_anomaly(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CFUN?'] = [
+        "AT+CFUN?",
+        "",
+        "",
+        "+CFUN: 7",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
+    assert ret == '{"status": "OK", "result": ' \
+        '{' \
+        '"counter": {"rx": "39379", "tx": "7555"}, ' \
+        '"datetime": "17/06/01,11:47:29", ' \
+        '"functionality": "Anomaly", ' \
         '"imei": "999999999999999", ' \
         '"timezone": 9.0, ' \
         '"model": "MOD", ' \
@@ -165,6 +331,24 @@ def test_modem_init(setup_sock_server):
          'counter_reset': True
          })
     assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_init_qnvw_failure(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QNVW='] = [
+        "AT+QNVW=",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'modem',
+         'action': 'init',
+         'baudrate': '115200',
+         'counter_reset': True
+         })
+    assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
 
 
 def test_service_version(setup_sock_server):

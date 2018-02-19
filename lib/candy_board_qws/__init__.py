@@ -61,6 +61,16 @@ CC = 6
 def bps_to_termios_sym(bps):
     return BPS_SYMS[bps]
 
+
+CGREG_STATS = [
+    "Unregistered",
+    "Registered",
+    "Searching",
+    "Denied",
+    "Unknown",
+    "Roaming"
+]
+
 # For local debugging:
 # import candy_board_qws
 # serial = candy_board_qws.SerialPort("/dev/ttyUSB2", 115200)
@@ -432,11 +442,22 @@ class SockServer(threading.Thread):
     def apn_set(self, cmd={}):
         (name, user_id, password) = (cmd['name'], cmd['user_id'],
                                      cmd['password'])
+        if 'type' in cmd:
+            t = cmd['type']
+            if t == 'ipv4':
+                pdp = 'IP'
+            elif t == 'ipv6':
+                pdp = 'IPV6'
+            else:
+                pdp = 'IPV4V6'
+        else:
+            pdp = 'IP'
+
         apn_id = "1"
         if 'id' in cmd:
             apn_id = cmd['id']
-        status, result = self.send_at(("AT+CGDCONT=%s,\"IP\",\"%s\"," +
-                                      "\"0.0.0.0\",0,0") % (apn_id, name))
+        status, result = self.send_at(("AT+CGDCONT=%s,\"%s\",\"%s\"," +
+                                      ",0,0") % (apn_id, pdp, name))
         if status == "OK":
             status, result = self.send_at(("AT$QCPDPP=%s,3,\"%s\",\"%s\"") %
                                           (apn_id, password, user_id))
@@ -495,14 +516,57 @@ class SockServer(threading.Thread):
             try:
                 operator = result.split(',')[2][1:-1]
             except IndexError:
-                operator = 'N/A'
+                operator = "N/A"
+            registration = {
+                "cs": "N/A",
+                "ps": "N/A"
+            }
+            status, result = self.send_at("AT+CREG?")
+            try:
+                cs = int(result.split(",")[1])
+                registration["cs"] = CGREG_STATS[cs]
+            except IndexError:
+                pass
+            status, result = self.send_at("AT+CGREG?")
+            try:
+                ps = int(result.split(",")[1])
+                registration["ps"] = CGREG_STATS[ps]
+            except IndexError:
+                pass
         message = {
             'status': status,
             'result': {
                 'rssi': rssi,
                 'rssiDesc': rssi_desc,
                 'network': 'N/A',
-                'operator': operator
+                'operator': operator,
+                'registration': registration
+            }
+        }
+        return json.dumps(message)
+
+    def network_deregister(self, cmd={}):
+        status, result = self.send_at("AT+COPS=2")
+        message = {
+            'status': status,
+            'result': result
+        }
+        return json.dumps(message)
+
+    def network_register(self, cmd={}):
+        operator = None
+        if 'operator' in cmd:
+            mode = '4' if 'auto' in cmd and cmd['auto'] else '1'
+            operator = cmd['operator']
+        if operator is None or operator == '':
+            mode = '0'
+        status, result = self.send_at(
+            "AT+COPS=%s,2,%s"
+            % (mode, operator))
+        message = {
+            'status': status,
+            'result': {
+                'mode': mode
             }
         }
         return json.dumps(message)
@@ -583,6 +647,30 @@ class SockServer(threading.Thread):
         }
         return message
 
+    def _functionality_show(self):
+        """
+        - Show phone functionality
+        """
+        status, result = self.send_at("AT+CFUN?")
+        func = "Error"
+        if status == "OK":
+            func = result.split(':')[1].strip()
+            if func == "0":
+                func = "Minimum"
+            elif func == "1":
+                func = "Full"
+            elif func == "4":
+                func = "Disabled"
+            else:
+                func = "Anomaly"
+        message = {
+            'status': status,
+            'result': {
+                'functionality': func
+            }
+        }
+        return message
+
     def modem_show(self, cmd={}):
         status, result = self.send_at("ATI")
         man = "UNKNOWN"
@@ -607,6 +695,8 @@ class SockServer(threading.Thread):
             if result['status'] == "OK":
                 utc = result['result'][8:-4]
                 timezone_hrs = float(result['result'][-4:-1]) / 4
+            result = self._functionality_show()
+            func = result['result']['functionality']
         message = {
             'status': status,
             'result': {
@@ -615,7 +705,8 @@ class SockServer(threading.Thread):
                 'revision': rev,
                 'imei': imei,
                 'datetime': utc,
-                'timezone': timezone_hrs
+                'timezone': timezone_hrs,
+                'functionality': func
             }
         }
         if counter:
@@ -644,6 +735,7 @@ class SockServer(threading.Thread):
         - no-opts or counter!=yes
             - Reset packet counter
             - Remove all APN
+            - Reset Phone Functionality
         """
         result = 'counter'
         counter_reset_ret = self._counter_reset()
@@ -657,6 +749,11 @@ class SockServer(threading.Thread):
                 apns = apn_ls_ret['result']['apns']
                 for apn in apns:
                     self._apn_del(apn['apn_id'])
+            status, qnvw_result = self.send_at(
+                'AT+QNVW=4548,0,"0000400C00000210"')
+            if status != "OK":
+                result = qnvw_result
+
         message = {
             'status': status,
             'result': result
@@ -684,6 +781,7 @@ class SockServer(threading.Thread):
         - Enable automatic timezone update with NITZ
           to set modem RTC (if NW is capable)
           Enabled by default.
+        - Reset Phone Functionality
         - Set baudrate (optional)
         - Reset packet counter (optional)
         """
@@ -700,6 +798,19 @@ class SockServer(threading.Thread):
                 status, result = self.send_at(at)
                 if status != "OK":
                     break
+        if 'counter_reset' in cmd and cmd['counter_reset']:
+            counter_reset_ret = self._counter_reset()
+            status = counter_reset_ret['status']
+            result = counter_reset_ret['result']
+        status, result_qnvw = self.send_at(
+            'AT+QNVW=4548,0,"0000400C00000210"')
+        if status != "OK":
+            message = {
+                'status': status,
+                'result': result_qnvw,
+                'cmd': 'AT+QNVW'
+            }
+            return json.dumps(message)
         if 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
             if status != "OK":
@@ -709,10 +820,6 @@ class SockServer(threading.Thread):
                     'cmd': 'baudrate'
                 }
                 return json.dumps(message)
-        if 'counter_reset' in cmd and cmd['counter_reset']:
-            counter_reset_ret = self._counter_reset()
-            status = counter_reset_ret['status']
-            result = counter_reset_ret['result']
         message = {
             'status': status,
             'result': result
