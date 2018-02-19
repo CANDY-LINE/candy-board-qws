@@ -193,6 +193,63 @@ def test_network_show_denied_in_cs_networks(setup_sock_server):
         '{"cs": "Denied", "ps": "Searching"}}}'
 
 
+def test_network_deregister(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'deregister'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_network_register(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register'})
+    assert ret == '{"status": "OK", "result": {"mode": "0"}}'
+
+
+def test_network_register_44099(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register', 'operator': '44099'})
+    assert ret == '{"status": "OK", "result": {"mode": "1"}}'
+
+
+def test_network_register_44099_auto(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+COPS='] = [
+        "AT+COPS=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'network', 'action': 'register',
+            'operator': '44099', 'auto': True})
+    assert ret == '{"status": "OK", "result": {"mode": "4"}}'
+
+
 def test_sim_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'sim', 'action': 'show'})
     assert ret == '{"status": "OK", "result": ' \
@@ -206,6 +263,34 @@ def test_modem_show(setup_sock_server):
         '{' \
         '"counter": {"rx": "39379", "tx": "7555"}, ' \
         '"datetime": "17/06/01,11:47:29", ' \
+        '"functionality": "Full", ' \
+        '"imei": "999999999999999", ' \
+        '"timezone": 9.0, ' \
+        '"model": "MOD", ' \
+        '"manufacturer": "MAN", ' \
+        '"revision": "REV"' \
+        '}}'
+
+
+def test_modem_show_anomaly(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CFUN?'] = [
+        "AT+CFUN?",
+        "",
+        "",
+        "+CFUN: 7",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
+    assert ret == '{"status": "OK", "result": ' \
+        '{' \
+        '"counter": {"rx": "39379", "tx": "7555"}, ' \
+        '"datetime": "17/06/01,11:47:29", ' \
+        '"functionality": "Anomaly", ' \
         '"imei": "999999999999999", ' \
         '"timezone": 9.0, ' \
         '"model": "MOD", ' \

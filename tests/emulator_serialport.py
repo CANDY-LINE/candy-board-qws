@@ -247,6 +247,17 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+CFUN?': [
+                "AT+CFUN?",
+                "",
+                "",
+                "+CFUN: 1",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
             'ATI': [
                 "ATI",
                 "",

@@ -545,6 +545,32 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
+    def network_deregister(self, cmd={}):
+        status, result = self.send_at("AT+COPS=2")
+        message = {
+            'status': status,
+            'result': result
+        }
+        return json.dumps(message)
+
+    def network_register(self, cmd={}):
+        operator = None
+        if 'operator' in cmd:
+            mode = '4' if 'auto' in cmd and cmd['auto'] else '1'
+            operator = cmd['operator']
+        if operator is None or operator == '':
+            mode = '0'
+        status, result = self.send_at(
+            "AT+COPS=%s,2,%s"
+            % (mode, operator))
+        message = {
+            'status': status,
+            'result': {
+                'mode': mode
+            }
+        }
+        return json.dumps(message)
+
     def sim_show(self, cmd={}):
         state = "SIM_STATE_ABSENT"
         msisdn = ""
@@ -621,6 +647,30 @@ class SockServer(threading.Thread):
         }
         return message
 
+    def _functionality_show(self):
+        """
+        - Show phone functionality
+        """
+        status, result = self.send_at("AT+CFUN?")
+        func = "Error"
+        if status == "OK":
+            func = result.split(':')[1].strip()
+            if func == "0":
+                func = "Minimum"
+            elif func == "1":
+                func = "Full"
+            elif func == "4":
+                func = "Disabled"
+            else:
+                func = "Anomaly"
+        message = {
+            'status': status,
+            'result': {
+                'functionality': func
+            }
+        }
+        return message
+
     def modem_show(self, cmd={}):
         status, result = self.send_at("ATI")
         man = "UNKNOWN"
@@ -645,6 +695,8 @@ class SockServer(threading.Thread):
             if result['status'] == "OK":
                 utc = result['result'][8:-4]
                 timezone_hrs = float(result['result'][-4:-1]) / 4
+            result = self._functionality_show()
+            func = result['result']['functionality']
         message = {
             'status': status,
             'result': {
@@ -653,7 +705,8 @@ class SockServer(threading.Thread):
                 'revision': rev,
                 'imei': imei,
                 'datetime': utc,
-                'timezone': timezone_hrs
+                'timezone': timezone_hrs,
+                'functionality': func
             }
         }
         if counter:
