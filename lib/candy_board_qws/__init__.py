@@ -727,6 +727,10 @@ class SockServer(threading.Thread):
                 status, result = self.send_at(at)
                 if status != "OK":
                     break
+        if 'counter_reset' in cmd and cmd['counter_reset']:
+            counter_reset_ret = self._counter_reset()
+            status = counter_reset_ret['status']
+            result = counter_reset_ret['result']
         if 'baudrate' in cmd:
             status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
             if status != "OK":
@@ -736,10 +740,6 @@ class SockServer(threading.Thread):
                     'cmd': 'baudrate'
                 }
                 return json.dumps(message)
-        if 'counter_reset' in cmd and cmd['counter_reset']:
-            counter_reset_ret = self._counter_reset()
-            status = counter_reset_ret['status']
-            result = counter_reset_ret['result']
         message = {
             'status': status,
             'result': result
