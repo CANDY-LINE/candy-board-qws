@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 1.3.1
+    - Fix an issue where modem_show() throws a runtime error when the command result is error
 * 1.3.0
     - Add a new property `registration` to `network show` command result in order to show the network registration status
     - Add new commands to register to/deregister from a network
