@@ -677,6 +677,7 @@ class SockServer(threading.Thread):
         mod = "UNKNOWN"
         rev = "UNKNOWN"
         imei = "UNKNOWN"
+        func = "UNKNOWN"
         counter = None
         utc = None
         timezone_hrs = None
