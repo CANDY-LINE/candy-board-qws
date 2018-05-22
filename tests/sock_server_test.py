@@ -360,26 +360,38 @@ def test_gnss_start(setup_sock_server):
     assert ret == '{"status": "OK", "result": ""}'
 
 
-def test_gnss_start_gps_nmea(setup_sock_server):
-    ret = setup_sock_server.perform(
-        {'category': 'gnss', 'action': 'start', 'gps_nmea': 'RMC'})
-    assert ret == '{"status": "OK", "result": ""}'
-
-
-def test_gnss_start_gps_nmea_error(setup_sock_server):
-    ret = setup_sock_server.perform(
-        {'category': 'gnss', 'action': 'start', 'gps_nmea': 'no-such-type'})
-    assert ret == '{"status": "ERROR", "result": "Invalid NMEA type"}'
-
-
 def test_gnss_status_on(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG='] = [
+        'AT+QGPSCFG="autogps"',
+        "",
+        "",
+        '+QGPSCFG: "autogps",0',
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
-    assert ret == '{"status": "OK", "result": "on"}'
+    assert ret == '{"status": "OK", "result": ' + \
+                  '{"session": "started", "autogps": "disabled"}}'
 
 
 def test_gnss_status_off(setup_sock_server):
     server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG='] = [
+        'AT+QGPSCFG="autogps"',
+        "",
+        "",
+        '+QGPSCFG: "autogps",1',
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     server.seralport.res['AT+QGPS?'] = [
         "AT+QGPS?",
         "",
@@ -393,7 +405,8 @@ def test_gnss_status_off(setup_sock_server):
     ]
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
-    assert ret == '{"status": "OK", "result": "off"}'
+    assert ret == '{"status": "OK", "result": ' + \
+                  '{"session": "stopped", "autogps": "enabled"}}'
 
 
 def test_gnss_stop(setup_sock_server):
