@@ -387,7 +387,9 @@ class SockServer(threading.Thread):
                 count = count + 1
             elif line == cmd:
                 continue
-            elif line == ok or line == "ERROR":
+            elif line == ok or \
+                    line == "ERROR" or \
+                    line.startswith("+CME ERROR"):
                 status = line
             elif line is None:
                 status = "UNKNOWN"
@@ -824,6 +826,103 @@ class SockServer(threading.Thread):
         message = {
             'status': status,
             'result': result
+        }
+        return json.dumps(message)
+
+    def gnss_start(self, cmd={}):
+        status, result = self.send_at('AT+QGPSCFG="gpsnmeatype",31')
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'gpsnmeatype'
+            }
+            return json.dumps(message)
+
+        status, result = self.send_at("AT+QGPS=1,30,50,0,1")
+        if status == "OK":
+            result = ""
+        elif status == "+CME ERROR: 504":
+            status = "OK"
+        else:
+            result = status
+            status = "ERROR"
+        message = {
+            'status': status,
+            'result': result,
+        }
+        return json.dumps(message)
+
+    def gnss_status(self, cmd={}):
+        status, result = self.send_at("AT+QGPS?")
+        if status == "OK":
+            gnssstate = result.split(':')[1].strip()
+            if gnssstate == "0":
+                result = 'stopped'
+            elif gnssstate == "1":
+                result = 'started'
+        message = {
+            'status': status,
+            'result': result,
+        }
+        return json.dumps(message)
+
+    def gnss_stop(self, cmd={}):
+        status, result = self.send_at("AT+QGPSEND")
+        if status == "OK":
+            result = ""
+        elif status == "+CME ERROR: 505":
+            status = "OK"
+        else:
+            result = status
+            status = "ERROR"
+        message = {
+            'status': status,
+            'result': result,
+        }
+        return json.dumps(message)
+
+    def gnss_locate(self, cmd={}):
+        format = cmd['format'] if 'format' in cmd else None
+        status, result = self.send_at("AT+QGPSLOC=%s" % (format or '2'))
+        if status == "OK":
+            csv = result.split(':')[1].strip().split(',')
+            result = {
+                'timestamp': '20%s-%s-%sT%s:%s:%s' %
+                (
+                    csv[9][4:6], csv[9][2:4], csv[9][0:2],
+                    csv[0][0:2], csv[0][2:4], csv[0][4:6]
+                ),
+                'latitude': float(csv[1]),
+                'longitude': float(csv[2]),
+                'hdop': float(csv[3]),
+                'altitude': float(csv[4]),
+                'fix': '%sD' % csv[5],
+                'cog': float(csv[6]),
+                'spkm': float(csv[7]),
+                'spkn': float(csv[8]),
+                'nsat': int(csv[10])
+            }
+        else:
+            code = status.split(':')
+            if len(code) > 1:
+                code = code[1].strip()
+                status = "ERROR"
+            else:
+                code = code[0]
+            if code == "516":
+                result = "Not fixed yet"
+            elif code == "502":
+                result = "Invalid format"
+            elif code == "505":
+                result = "Session not started"
+            else:
+                result = code
+        message = {
+            'status': status,
+            'result': result,
         }
         return json.dumps(message)
 
