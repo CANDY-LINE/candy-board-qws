@@ -28,6 +28,7 @@ import time
 import glob
 import platform
 import traceback
+import errno
 
 # SerialPort class was imported from John Wiseman's
 # https://github.com/wiseman/arduino-serial/blob/master/arduinoserial.py
@@ -329,6 +330,13 @@ class SockServer(threading.Thread):
                     packer_body = struct.Struct("%is" % size)
                     packed_message = packer_body.pack(message)
                     connection.sendall(packed_message)
+
+            except socket.error, e:
+                if isinstance(e.args, tuple):
+                    if e[0] == errno.EPIPE:
+                        continue
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
 
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
