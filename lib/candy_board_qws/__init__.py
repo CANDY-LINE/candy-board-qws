@@ -913,7 +913,10 @@ class SockServer(threading.Thread):
         return json.dumps(message)
 
     def gnss_locate(self, cmd={}):
-        format = (str(cmd['format']) if 'format' in cmd else None) or '2'
+        if 'format' in cmd and cmd['format']:
+            format = str(cmd['format'])
+        else:
+            format = '2'
         status, result = self.send_at("AT+QGPSLOC=%s" % (format))
         if status == "OK":
             csv = result.split(':')[1].strip().split(',')
