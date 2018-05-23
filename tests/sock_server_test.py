@@ -333,7 +333,8 @@ def test_modem_init(setup_sock_server):
          'baudrate': '115200',
          'counter_reset': True
          })
-    assert ret == '{"status": "OK", "result": ""}'
+    assert ret == '{"status": "OK", ' \
+                  '"result": {"counter_reset": "OK", "baudrate": "OK"}}'
 
 
 def test_modem_init_qnvw_failure(setup_sock_server):
