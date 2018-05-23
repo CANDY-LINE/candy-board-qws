@@ -913,20 +913,36 @@ class SockServer(threading.Thread):
         return json.dumps(message)
 
     def gnss_locate(self, cmd={}):
-        format = cmd['format'] if 'format' in cmd else None
-        status, result = self.send_at("AT+QGPSLOC=%s" % (format or '2'))
+        format = (str(cmd['format']) if 'format' in cmd else None) or '2'
+        status, result = self.send_at("AT+QGPSLOC=%s" % (format))
         if status == "OK":
             csv = result.split(':')[1].strip().split(',')
+            latitude = csv[1]
+            if format == '1':
+                latitude = '%s %s' % (latitude, csv[2])
+                del csv[2]
+            elif format == '0':
+                latitude = '%s %s' % (latitude[:-1], latitude[-1])
+            longitude = csv[2]
+            if format == '1':
+                longitude = '%s %s' % (longitude, csv[3])
+                del csv[3]
+            elif format == '0':
+                longitude = '%s %s' % (longitude[:-1], longitude[-1])
+            altitude = float(csv[4])
+            if format == '2':
+                latitude = float(latitude)
+                longitude = float(longitude)
             result = {
                 'timestamp': '20%s-%s-%sT%s:%s:%s' %
                 (
                     csv[9][4:6], csv[9][2:4], csv[9][0:2],
                     csv[0][0:2], csv[0][2:4], csv[0][4:6]
                 ),
-                'latitude': float(csv[1]),
-                'longitude': float(csv[2]),
+                'latitude': latitude,
+                'longitude': longitude,
                 'hdop': float(csv[3]),
-                'altitude': float(csv[4]),
+                'altitude': altitude,
                 'fix': '%sD' % csv[5],
                 'cog': float(csv[6]),
                 'spkm': float(csv[7]),
