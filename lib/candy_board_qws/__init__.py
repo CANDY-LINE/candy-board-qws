@@ -865,22 +865,6 @@ class SockServer(threading.Thread):
         return json.dumps(message)
 
     def gnss_status(self, cmd={}):
-        status, result = self.send_at('AT+QGPSCFG="autogps"')
-        run_on_startup = 'N/A'
-        if status == "OK":
-            autogps = result.split(',')[1].strip()
-            if autogps == "0":
-                run_on_startup = 'disabled'
-            else:
-                run_on_startup = 'enabled'
-        else:
-            message = {
-                'status': status,
-                'result': result,
-                'cmd': 'autogps'
-            }
-            return json.dumps(message)
-
         status, result = self.send_at("AT+QGPS?")
         if status == "OK":
             gnssstate = result.split(':')[1].strip()
@@ -891,7 +875,6 @@ class SockServer(threading.Thread):
         message = {
             'status': status,
             'result': {
-                'autogps': run_on_startup,
                 'session': result
             },
         }
