@@ -788,23 +788,20 @@ class SockServer(threading.Thread):
         - Set baudrate (optional)
         - Reset packet counter (optional)
         """
+        tz_update = "N/A"
+        counter_reset_ret = "N/A"
+        baudrate_ret = "N/A"
         if 'tz_update' not in cmd or cmd['tz_update'] is True:
             status, result = self.send_at("AT+CTZU?")
-            if status != "OK":
-                message = {
-                    'status': status,
-                    'result': result,
-                    'cmd': 'tz_update'
-                }
-                return json.dumps(message)
-            for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
-                status, result = self.send_at(at)
-                if status != "OK":
-                    break
+            if status == "OK":
+                tz_update = "OK"
+                for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
+                    status, result = self.send_at(at)
+                    if status != "OK":
+                        tz_update = "ERROR"
+                        break
         if 'counter_reset' in cmd and cmd['counter_reset']:
-            counter_reset_ret = self._counter_reset()
-            status = counter_reset_ret['status']
-            result = counter_reset_ret['result']
+            counter_reset_ret = self._counter_reset()['status']
         status, result_qnvw = self.send_at(
             'AT+QNVW=4548,0,"0000400C00000210"')
         if status != "OK":
@@ -815,17 +812,20 @@ class SockServer(threading.Thread):
             }
             return json.dumps(message)
         if 'baudrate' in cmd:
-            status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
-            if status != "OK":
+            baudrate_ret, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+            if baudrate_ret != "OK":
                 message = {
-                    'status': status,
+                    'status': baudrate_ret,
                     'result': result,
                     'cmd': 'baudrate'
                 }
                 return json.dumps(message)
         message = {
             'status': status,
-            'result': result
+            'result': {
+                'counter_reset': counter_reset_ret,
+                'baudrate': baudrate_ret
+            }
         }
         return json.dumps(message)
 
