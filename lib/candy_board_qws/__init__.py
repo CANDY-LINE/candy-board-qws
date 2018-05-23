@@ -920,7 +920,7 @@ class SockServer(threading.Thread):
                 latitude = float(latitude)
                 longitude = float(longitude)
             result = {
-                'timestamp': '20%s-%s-%sT%s:%s:%s' %
+                'timestamp': '20%s-%s-%sT%s:%s:%s.000Z' %
                 (
                     csv[9][4:6], csv[9][2:4], csv[9][0:2],
                     csv[0][0:2], csv[0][2:4], csv[0][4:6]
