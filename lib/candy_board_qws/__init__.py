@@ -840,7 +840,16 @@ class SockServer(threading.Thread):
                 'cmd': 'gpsnmeatype'
             }
             return json.dumps(message)
-
+        status, result = self.send_at('AT+QGPSCFG="nmeasrc",1')
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'nmeasrc'
+            }
+            return json.dumps(message)
         status, result = self.send_at("AT+QGPS=1,30,50,0,1")
         if status == "OK":
             result = ""
