@@ -911,6 +911,12 @@ class SockServer(threading.Thread):
         status, result = self.send_at("AT+QGPSLOC=%s" % (format))
         if status == "OK":
             csv = result.split(':')[1].strip().split(',')
+            if len(csv) < 11:
+                message = {
+                    'status': 'ERROR',
+                    'result': 'Temporary I/O Error',
+                }
+                return json.dumps(message)
             latitude = csv[1]
             if format == '1':
                 latitude = '%s %s' % (latitude, csv[2])
