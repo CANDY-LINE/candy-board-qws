@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Copyright (c) 2018 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -330,7 +333,8 @@ def test_modem_init(setup_sock_server):
          'baudrate': '115200',
          'counter_reset': True
          })
-    assert ret == '{"status": "OK", "result": ""}'
+    assert ret == '{"status": "OK", ' \
+                  '"result": {"counter_reset": "OK", "baudrate": "OK"}}'
 
 
 def test_modem_init_qnvw_failure(setup_sock_server):
@@ -349,6 +353,107 @@ def test_modem_init_qnvw_failure(setup_sock_server):
          'counter_reset': True
          })
     assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
+
+
+def test_gnss_start(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_status_on(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG='] = [
+        'AT+QGPSCFG="autogps"',
+        "",
+        "",
+        '+QGPSCFG: "autogps",0',
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'status'})
+    assert ret == '{"status": "OK", "result": ' + \
+                  '{"session": "started", "autogps": "disabled"}}'
+
+
+def test_gnss_status_off(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG='] = [
+        'AT+QGPSCFG="autogps"',
+        "",
+        "",
+        '+QGPSCFG: "autogps",1',
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+QGPS?'] = [
+        "AT+QGPS?",
+        "",
+        "",
+        "+QGPS: 0",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'status'})
+    assert ret == '{"status": "OK", "result": ' + \
+                  '{"session": "stopped", "autogps": "enabled"}}'
+
+
+def test_gnss_stop(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'stop'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_locate_ok(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'locate'})
+    assert ret == '{"status": "OK", "result": ' \
+                  '{' \
+                  '"spkn": 0.0, "nsat": 9, "hdop": 0.7, "cog": 0.0, ' \
+                  '"spkm": 0.0, "latitude": 35.68116, ' \
+                  '"timestamp": "2018-05-21T07:12:17", ' \
+                  '"altitude": 50.4, "fix": "2D", "longitude": 139.76486}' \
+                  '}'
+
+
+def test_gnss_locate_error_not_yet_fixed(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSLOC='] = [
+        "AT+QGPSLOC=",
+        "",
+        "",
+        "+CME ERROR: 516",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'locate'})
+    assert ret == '{"status": "ERROR", "result": "Not fixed yet"}'
+
+
+def test_gnss_locate_error_other(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSLOC='] = [
+        "AT+QGPSLOC=",
+        "",
+        "",
+        "+CME ERROR: 500",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'locate'})
+    assert ret == '{"status": "ERROR", "result": "500"}'
 
 
 def test_service_version(setup_sock_server):

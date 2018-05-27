@@ -28,6 +28,7 @@ import time
 import glob
 import platform
 import traceback
+import errno
 
 # SerialPort class was imported from John Wiseman's
 # https://github.com/wiseman/arduino-serial/blob/master/arduinoserial.py
@@ -330,6 +331,13 @@ class SockServer(threading.Thread):
                     packed_message = packer_body.pack(message)
                     connection.sendall(packed_message)
 
+            except socket.error, e:
+                if isinstance(e.args, tuple):
+                    if e[0] == errno.EPIPE:
+                        continue
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback)
+
             except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback.print_exception(exc_type, exc_value, exc_traceback)
@@ -387,7 +395,9 @@ class SockServer(threading.Thread):
                 count = count + 1
             elif line == cmd:
                 continue
-            elif line == ok or line == "ERROR":
+            elif line == ok or \
+                    line == "ERROR" or \
+                    line.startswith("+CME ERROR"):
                 status = line
             elif line is None:
                 status = "UNKNOWN"
@@ -786,23 +796,20 @@ class SockServer(threading.Thread):
         - Set baudrate (optional)
         - Reset packet counter (optional)
         """
+        tz_update = "N/A"
+        counter_reset_ret = "N/A"
+        baudrate_ret = "N/A"
         if 'tz_update' not in cmd or cmd['tz_update'] is True:
             status, result = self.send_at("AT+CTZU?")
-            if status != "OK":
-                message = {
-                    'status': status,
-                    'result': result,
-                    'cmd': 'tz_update'
-                }
-                return json.dumps(message)
-            for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
-                status, result = self.send_at(at)
-                if status != "OK":
-                    break
+            if status == "OK":
+                tz_update = "OK"
+                for at in ["AT+COPS=2", "AT+CTZU=1", "AT+COPS=0"]:
+                    status, result = self.send_at(at)
+                    if status != "OK":
+                        tz_update = "ERROR"
+                        break
         if 'counter_reset' in cmd and cmd['counter_reset']:
-            counter_reset_ret = self._counter_reset()
-            status = counter_reset_ret['status']
-            result = counter_reset_ret['result']
+            counter_reset_ret = self._counter_reset()['status']
         status, result_qnvw = self.send_at(
             'AT+QNVW=4548,0,"0000400C00000210"')
         if status != "OK":
@@ -813,17 +820,153 @@ class SockServer(threading.Thread):
             }
             return json.dumps(message)
         if 'baudrate' in cmd:
-            status, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
-            if status != "OK":
+            baudrate_ret, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
+            if baudrate_ret != "OK":
                 message = {
-                    'status': status,
+                    'status': baudrate_ret,
                     'result': result,
                     'cmd': 'baudrate'
                 }
                 return json.dumps(message)
         message = {
             'status': status,
-            'result': result
+            'result': {
+                'counter_reset': counter_reset_ret,
+                'baudrate': baudrate_ret
+            }
+        }
+        return json.dumps(message)
+
+    def gnss_start(self, cmd={}):
+        status, result = self.send_at('AT+QGPSCFG="gpsnmeatype",31')
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'gpsnmeatype'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="nmeasrc",1')
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'nmeasrc'
+            }
+            return json.dumps(message)
+        status, result = self.send_at("AT+QGPS=1,30,50,0,1")
+        if status == "OK":
+            result = ""
+        elif status == "+CME ERROR: 504":
+            status = "OK"
+        else:
+            result = status
+            status = "ERROR"
+        message = {
+            'status': status,
+            'result': result,
+        }
+        return json.dumps(message)
+
+    def gnss_status(self, cmd={}):
+        status, result = self.send_at("AT+QGPS?")
+        if status == "OK":
+            gnssstate = result.split(':')[1].strip()
+            if gnssstate == "0":
+                result = 'stopped'
+            elif gnssstate == "1":
+                result = 'started'
+        message = {
+            'status': status,
+            'result': {
+                'session': result
+            },
+        }
+        return json.dumps(message)
+
+    def gnss_stop(self, cmd={}):
+        status, result = self.send_at("AT+QGPSEND")
+        if status == "OK":
+            result = ""
+        elif status == "+CME ERROR: 505":
+            status = "OK"
+        else:
+            result = status
+            status = "ERROR"
+        message = {
+            'status': status,
+            'result': result,
+        }
+        return json.dumps(message)
+
+    def gnss_locate(self, cmd={}):
+        if 'format' in cmd and cmd['format']:
+            format = str(cmd['format'])
+        else:
+            format = '2'
+        status, result = self.send_at("AT+QGPSLOC=%s" % (format))
+        if status == "OK":
+            csv = result.split(':')[1].strip().split(',')
+            if len(csv) < 11:
+                message = {
+                    'status': 'ERROR',
+                    'result': 'Temporary I/O Error',
+                }
+                return json.dumps(message)
+            latitude = csv[1]
+            if format == '1':
+                latitude = '%s %s' % (latitude, csv[2])
+                del csv[2]
+            elif format == '0':
+                latitude = '%s %s' % (latitude[:-1], latitude[-1])
+            longitude = csv[2]
+            if format == '1':
+                longitude = '%s %s' % (longitude, csv[3])
+                del csv[3]
+            elif format == '0':
+                longitude = '%s %s' % (longitude[:-1], longitude[-1])
+            altitude = float(csv[4])
+            if format == '2':
+                latitude = float(latitude)
+                longitude = float(longitude)
+            result = {
+                'timestamp': '20%s-%s-%sT%s:%s:%s.000Z' %
+                (
+                    csv[9][4:6], csv[9][2:4], csv[9][0:2],
+                    csv[0][0:2], csv[0][2:4], csv[0][4:6]
+                ),
+                'latitude': latitude,
+                'longitude': longitude,
+                'hdop': float(csv[3]),
+                'altitude': altitude,
+                'fix': '%sD' % csv[5],
+                'cog': float(csv[6]),
+                'spkm': float(csv[7]),
+                'spkn': float(csv[8]),
+                'nsat': int(csv[10])
+            }
+        else:
+            code = status.split(':')
+            if len(code) > 1:
+                code = code[1].strip()
+                status = "ERROR"
+            else:
+                code = code[0]
+            if code == "516":
+                result = "Not fixed yet"
+            elif code == "502":
+                result = "Invalid format"
+            elif code == "505":
+                result = "Session not started"
+            else:
+                result = code
+        message = {
+            'status': status,
+            'result': result,
         }
         return json.dumps(message)
 

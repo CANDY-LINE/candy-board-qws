@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Copyright (c) 2018 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -272,7 +275,51 @@ class SerialPortEmurator:
                 "",
                 "OK",
                 ""
-            ]
+            ],
+            'AT+QGPSCFG=': [
+                "AT+QGPSCFG=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+QGPS=': [
+                "AT+QGPS=",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+QGPS?': [
+                "AT+QGPS?",
+                "",
+                "",
+                "+QGPS: 1",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+QGPSLOC=': [
+                "AT+QGPSLOC=",
+                "",
+                "",
+                "+QGPSLOC: 071217.0,35.68116,139.76486,"
+                "0.7,50.4,2,0.00,0.0,0.0,210518,09",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
+            'AT+QGPSEND': [
+                "AT+QGPSEND",
+                "",
+                "",
+                "OK",
+                ""
+            ],
         }
         self.reset_res()
 
