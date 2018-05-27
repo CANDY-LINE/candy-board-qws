@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.0.1
+    - Fix test case errors
 * 2.0.0
     - Add new categories for `gnss`
     - Fix an issue where modem_init() returned an error when SIM card is absent

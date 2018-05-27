@@ -377,7 +377,7 @@ def test_gnss_status_on(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
     assert ret == '{"status": "OK", "result": ' + \
-                  '{"session": "started", "autogps": "disabled"}}'
+                  '{"session": "started"}}'
 
 
 def test_gnss_status_off(setup_sock_server):
@@ -407,7 +407,7 @@ def test_gnss_status_off(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
     assert ret == '{"status": "OK", "result": ' + \
-                  '{"session": "stopped", "autogps": "enabled"}}'
+                  '{"session": "stopped"}}'
 
 
 def test_gnss_stop(setup_sock_server):
@@ -423,7 +423,7 @@ def test_gnss_locate_ok(setup_sock_server):
                   '{' \
                   '"spkn": 0.0, "nsat": 9, "hdop": 0.7, "cog": 0.0, ' \
                   '"spkm": 0.0, "latitude": 35.68116, ' \
-                  '"timestamp": "2018-05-21T07:12:17", ' \
+                  '"timestamp": "2018-05-21T07:12:17.000Z", ' \
                   '"altitude": 50.4, "fix": "2D", "longitude": 139.76486}' \
                   '}'
 
