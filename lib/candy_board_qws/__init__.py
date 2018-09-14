@@ -764,6 +764,11 @@ class SockServer(threading.Thread):
                 'AT+QNVW=4548,0,"0000400C00000210"')
             if status != "OK":
                 result = qnvw_result
+            status, qnvw_result = self.send_at(
+                'AT+QNVW=930,0,"2A39380000030003002A3939000003000300233737370'
+                '004000400000000000000000000"')
+            if status != "OK":
+                result = qnvw_result
 
         message = {
             'status': status,
