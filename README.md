@@ -65,6 +65,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.1.0
+    - Fix an issue where a dialing number was invalidated in some cases
 * 2.0.1
     - Fix test case errors
 * 2.0.0
