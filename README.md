@@ -49,6 +49,7 @@ $ cat files.txt | xargs rm -rf
 ### Create local package
 
 ```
+$ find . -name "*.pyc" | xargs rm -f
 $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
