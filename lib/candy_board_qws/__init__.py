@@ -435,7 +435,7 @@ class SockServer(threading.Thread):
                     'apn_id': id_name[0],
                     'apn': id_name[1]
                 }
-                if creds_list[i]:
+                if len(creds_list) > i:
                     apn['user'] = creds_list[i]
                 apn_list.append(apn)
         message = {
