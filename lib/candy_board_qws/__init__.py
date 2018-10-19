@@ -360,7 +360,11 @@ class SockServer(threading.Thread):
         except KeyError:
             return self.error_message("Invalid Args")
         except OSError:
-            return self.error_message("I/O Error")
+            return self.error_message("I/O Error: %s" %
+                                      (''.join(traceback
+                                       .format_exception(*sys.exc_info())[-2:])
+                                       .strip().replace('\n', ': '))
+                                      )
         except Exception:
             return self.error_message("Unexpected error: %s" %
                                       (''.join(traceback
