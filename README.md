@@ -49,6 +49,7 @@ $ cat files.txt | xargs rm -rf
 ### Create local package
 
 ```
+$ find . -name "*.pyc" | xargs rm -f
 $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
@@ -65,6 +66,9 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.2.0
+    - Improve I/O error description
+    - Fix an issue where Index error can be thrown
 * 2.1.0
     - Fix an issue where a dialing number was invalidated in some cases
 * 2.0.1
