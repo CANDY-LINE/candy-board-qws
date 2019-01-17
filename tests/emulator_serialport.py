@@ -320,6 +320,17 @@ class SerialPortEmurator:
                 "OK",
                 ""
             ],
+            'AT+QNWINFO': [
+                "AT+QNWINFO",
+                "",
+                "",
+                "+QNWINFO: \"FDD LTE\",\"44010\",\"LTE BAND 1\",1849",
+                "",
+                "",
+                "",
+                "OK",
+                ""
+            ],
         }
         self.reset_res()
 

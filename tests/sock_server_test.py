@@ -79,10 +79,10 @@ def test_network_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
-        '"operator": "NTT DOCOMO", ' \
-        '"rssi": "-105", ' \
-        '"network": "N/A", "rssiDesc": "", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered"}}}'
+        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
+        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
+        '}}'
 
 
 def test_network_show_no_signal(setup_sock_server):
@@ -133,12 +133,10 @@ def test_network_show_no_signal(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
-        '"operator": "N/A", ' \
-        '"rssi": "-89", ' \
-        '"network": "N/A", ' \
-        '"rssiDesc": "", ' \
-        '"registration": ' \
-        '{"cs": "Searching", "ps": "Searching"}}}'
+        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
+        '"registration": {"cs": "Searching", "ps": "Searching"}, ' \
+        '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
+        '}}'
 
 
 def test_network_show_denied_in_cs_networks(setup_sock_server):
@@ -189,11 +187,10 @@ def test_network_show_denied_in_cs_networks(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
-        '"operator": "N/A", ' \
-        '"rssi": "-89", ' \
-        '"network": "N/A", "rssiDesc": "", ' \
-        '"registration": ' \
-        '{"cs": "Denied", "ps": "Searching"}}}'
+        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
+        '"registration": {"cs": "Denied", "ps": "Searching"}, ' \
+        '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
+        '}}'
 
 
 def test_network_deregister(setup_sock_server):
