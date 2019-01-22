@@ -66,6 +66,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.3.0
+    - Include wireless access technology information into `network show` result as well
 * 2.2.0
     - Improve I/O error description
     - Fix an issue where Index error can be thrown
