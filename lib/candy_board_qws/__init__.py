@@ -547,6 +547,15 @@ class SockServer(threading.Thread):
                 registration["ps"] = CGREG_STATS[ps]
             except IndexError:
                 pass
+            access = 'N/A'
+            band = 'N/A'
+            status, result = self.send_at("AT+QNWINFO")
+            try:
+                nwinfo = result.split(': ')[1].split(',')
+                access = nwinfo[0].replace('"', '')
+                band = nwinfo[2].replace('"', '')
+            except IndexError:
+                pass
         message = {
             'status': status,
             'result': {
@@ -554,7 +563,9 @@ class SockServer(threading.Thread):
                 'rssiDesc': rssi_desc,
                 'network': 'N/A',
                 'operator': operator,
-                'registration': registration
+                'registration': registration,
+                'access': access,
+                'band': band
             }
         }
         return json.dumps(message)
