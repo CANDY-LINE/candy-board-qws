@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 CANDY LINE INC.
+# Copyright (c) 2019 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -857,6 +857,65 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
+    def _gnss_config(self, cmd={}):
+        config = '0'
+        glonassnmeatype = '0'
+        beidounmeatype = '0'
+        galileonmeatype = '0'
+        if 'all' in cmd and cmd['all']:
+            config = '1'
+            glonassnmeatype = '7'
+            beidounmeatype = '3'
+            galileonmeatype = '1'
+        elif 'qzss' in cmd and cmd['qzss']:
+            config = '2'
+            glonassnmeatype = '7'
+            beidounmeatype = '3'
+
+        status, result = self.send_at('AT+QGPSCFG="gnssconfig",%s' % config)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'gnsconfig'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="glonassnmeatype",%s'
+                                      % glonassnmeatype)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'glonassnmeatype'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="beidounmeatype",%s'
+                                      % beidounmeatype)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'beidounmeatype'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="galileonmeatype",%s'
+                                      % galileonmeatype)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'galileonmeatype'
+            }
+            return json.dumps(message)
+
     def gnss_start(self, cmd={}):
         status, result = self.send_at('AT+QGPSCFG="gpsnmeatype",31')
         if status != "OK":
@@ -868,6 +927,9 @@ class SockServer(threading.Thread):
                 'cmd': 'gpsnmeatype'
             }
             return json.dumps(message)
+        message_json = self._gnss_config(cmd)
+        if message_json is not None:
+            return message_json
         status, result = self.send_at('AT+QGPSCFG="nmeasrc",1')
         if status != "OK":
             result = status
@@ -897,13 +959,45 @@ class SockServer(threading.Thread):
         if status == "OK":
             gnssstate = result.split(':')[1].strip()
             if gnssstate == "0":
-                result = 'stopped'
+                session = 'stopped'
             elif gnssstate == "1":
-                result = 'started'
+                session = 'started'
+        else:
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'QGPS?'
+            }
+            return json.dumps(message)
+
+        qzss = 'N/A'
+        status, result = self.send_at("ATI")
+        if status == "OK":
+            info = result.split("\n")
+            if info[1] != 'UC20':
+                status, result = self.send_at('AT+QGPSCFG="gnssconfig"')
+                if status != "OK":
+                    result = status
+                    status = "ERROR"
+                    message = {
+                        'status': status,
+                        'result': result,
+                        'cmd': 'gnssconfig'
+                    }
+                    return json.dumps(message)
+                gnssconfig = result.split(':')[1].split(',')[1].strip()
+                if gnssconfig == '1' or gnssconfig == '2':
+                    qzss = 'enabled'
+                else:
+                    qzss = 'disabled'
+
         message = {
             'status': status,
             'result': {
-                'session': result
+                'session': session,
+                'qzss': qzss
             },
         }
         return json.dumps(message)
