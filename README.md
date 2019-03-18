@@ -66,6 +66,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.4.0
+    - Add QZSS support including GLONASS, BeiDou and Galileo
 * 2.3.0
     - Include wireless access technology information into `network show` result as well
 * 2.2.0
