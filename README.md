@@ -66,6 +66,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.5.0
+    - Add WCDMA/GSM modem support for retrieving the network info
 * 2.4.0
     - Add QZSS support including GLONASS, BeiDou and Galileo
 * 2.3.0
