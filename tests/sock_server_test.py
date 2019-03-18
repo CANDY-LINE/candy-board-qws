@@ -75,11 +75,39 @@ def test_apn_set_nok(setup_sock_server):
     assert ret == '{"status": "ERROR", "result": "Invalid Args"}'
 
 
-def test_network_show(setup_sock_server):
+def test_network_show_ec2x_lte(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
+        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
+        '}}'
+
+
+def test_network_show_uc20_gsm_1800(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QNWINFO'] = [
+        "AT+QNWINFO",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    server.seralport.res['AT+QGBAND'] = [
+        "AT+QGBAND",
+        "",
+        "",
+        "+QGBAND: 2",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
+    assert ret == '{"status": "OK", ' \
+        '"result": {' \
+        '"network": "N/A", "access": "GSM", "band": "GSM 1800", ' \
         '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
         '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
         '}}'
@@ -374,7 +402,30 @@ def test_gnss_status_on(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
     assert ret == '{"status": "OK", "result": ' + \
-                  '{"session": "started"}}'
+                  '{"session": "started", "qzss": "disabled"}}'
+
+
+def test_gnss_status_on_uc20(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['ATI'] = [
+        "ATI",
+        "",
+        "",
+        "MAN",
+        "",
+        "UC20",
+        "",
+        "Revision: REV",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'status'})
+    assert ret == '{"status": "OK", "result": ' + \
+                  '{"session": "started", "qzss": "N/A"}}'
 
 
 def test_gnss_status_off(setup_sock_server):
@@ -404,7 +455,7 @@ def test_gnss_status_off(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'status'})
     assert ret == '{"status": "OK", "result": ' + \
-                  '{"session": "stopped"}}'
+                  '{"session": "stopped", "qzss": "enabled"}}'
 
 
 def test_gnss_stop(setup_sock_server):

@@ -550,12 +550,37 @@ class SockServer(threading.Thread):
             access = 'N/A'
             band = 'N/A'
             status, result = self.send_at("AT+QNWINFO")
-            try:
-                nwinfo = result.split(': ')[1].split(',')
-                access = nwinfo[0].replace('"', '')
-                band = nwinfo[2].replace('"', '')
-            except IndexError:
-                pass
+            if status == 'ERROR':
+                status, result = self.send_at("AT+QGBAND")
+                try:
+                    currentband = int(result.split(': ')[1])
+                    if currentband == 1:
+                        access, band = 'GSM', 'GSM 900'
+                    elif currentband == 2:
+                        access, band = 'GSM', 'GSM 1800'
+                    elif currentband == 4:
+                        access, band = 'GSM', 'GSM 850'
+                    elif currentband == 8:
+                        access, band = 'GSM', 'GSM 1900'
+                    elif currentband == 16:
+                        access, band = 'WCDMA', 'WCDMA 2100'
+                    elif currentband == 32:
+                        access, band = 'WCDMA', 'WCDMA 1900'
+                    elif currentband == 64:
+                        access, band = 'WCDMA', 'WCDMA 850'
+                    elif currentband == 128:
+                        access, band = 'WCDMA', 'WCDMA 900'
+                    elif currentband == 256:
+                        access, band = 'WCDMA', 'WCDMA 800'
+                except IndexError:
+                    pass
+            else:
+                try:
+                    nwinfo = result.split(': ')[1].split(',')
+                    access = nwinfo[0].replace('"', '')
+                    band = nwinfo[2].replace('"', '')
+                except IndexError:
+                    pass
         message = {
             'status': status,
             'result': {
