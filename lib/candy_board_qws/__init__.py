@@ -359,12 +359,8 @@ class SockServer(threading.Thread):
             return self.error_message("Unknown Command")
         except KeyError:
             return self.error_message("Invalid Args")
-        except OSError:
-            return self.error_message("I/O Error: %s" %
-                                      (''.join(traceback
-                                       .format_exception(*sys.exc_info())[-2:])
-                                       .strip().replace('\n', ': '))
-                                      )
+        except OSError:  # I/O Error
+            return self.error_message("Modem is not ready")
         except Exception:
             return self.error_message("Unexpected error: %s" %
                                       (''.join(traceback
