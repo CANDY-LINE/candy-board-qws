@@ -529,7 +529,8 @@ class SockServer(threading.Thread):
                 operator = "N/A"
             registration = {
                 "cs": "N/A",
-                "ps": "N/A"
+                "ps": "N/A",
+                "eps": "N/A"
             }
             status, result = self.send_at("AT+CREG?")
             try:
@@ -541,6 +542,12 @@ class SockServer(threading.Thread):
             try:
                 ps = int(result.split(",")[1])
                 registration["ps"] = CGREG_STATS[ps]
+            except IndexError:
+                pass
+            status, result = self.send_at("AT+CEREG?")
+            try:
+                eps = int(result.split(",")[1])
+                registration["eps"] = CGREG_STATS[eps]
             except IndexError:
                 pass
             access = 'N/A'
