@@ -80,7 +80,8 @@ def test_network_show_ec2x_lte(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"registration": {"cs": "Registered", "ps": "Registered", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
         '}}'
 
@@ -108,7 +109,8 @@ def test_network_show_uc20_gsm_1800(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "GSM", "band": "GSM 1800", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"registration": {"cs": "Registered", "ps": "Registered", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
         '}}'
 
@@ -162,7 +164,8 @@ def test_network_show_no_signal(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Searching", "ps": "Searching"}, ' \
+        '"registration": {"cs": "Searching", "ps": "Searching", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
         '}}'
 
@@ -216,7 +219,8 @@ def test_network_show_denied_in_cs_networks(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Denied", "ps": "Searching"}, ' \
+        '"registration": {"cs": "Denied", "ps": "Searching", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
         '}}'
 
