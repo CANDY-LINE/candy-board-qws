@@ -384,10 +384,83 @@ def test_modem_init_qnvw_failure(setup_sock_server):
     assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
 
 
-def test_gnss_start(setup_sock_server):
+def test_gnss_start_ec2x(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'start'})
     assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_start_ec2x_nok(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG="gnssconfig",0'] = [
+        "AT+QGPSCFG=\"gnssconfig\",0",
+        "",
+        "",
+        "+CME ERROR: 999",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "ERROR", "cmd": "gnssconfig", ' \
+                  '"result": "ERROR"}'
+
+
+def test_gnss_start_uc2x(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['ATI'] = [
+        "ATI",
+        "",
+        "",
+        "MAN",
+        "",
+        "UC20",
+        "",
+        "Revision: REV",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_start_uc2x_nok(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['ATI'] = [
+        "ATI",
+        "",
+        "",
+        "MAN",
+        "",
+        "UC20",
+        "",
+        "Revision: REV",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+QGPSCFG="glonassenable",0'] = [
+        "AT+QGPSCFG=\"glonassenable\",0",
+        "",
+        "",
+        "+CME ERROR: 501",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "ERROR", "cmd": "glonassenable", ' \
+                  '"result": "ERROR"}'
 
 
 def test_gnss_status_on(setup_sock_server):

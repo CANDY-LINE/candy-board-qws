@@ -365,7 +365,8 @@ class SerialPortEmurator:
     def write(self, str):
         print("W:[%s]" % str)
         self.cmd = str.strip()
-        if self.cmd.find('=') >= 0:
-            self.cmd = self.cmd[:self.cmd.find('=') + 1]
+        if self.cmd not in self.res:
+            if self.cmd.find('=') >= 0:
+                self.cmd = self.cmd[:self.cmd.find('=') + 1]
         self.line = 0
         self.res[self.cmd][0] = str.strip()
