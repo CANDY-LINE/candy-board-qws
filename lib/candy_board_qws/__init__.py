@@ -885,7 +885,37 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
-    def _gnss_config(self, cmd={}):
+    def _gnss_config_uc2x(self, cmd={}):
+        glonassenable = '0'
+        glonassnmeatype = '0'
+        if 'all' in cmd and cmd['all']:
+            glonassenable = '1'
+            glonassnmeatype = '7'
+
+        status, result = self.send_at('AT+QGPSCFG="glonassenable",%s'
+                                      % glonassenable)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'glonassenable'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="glonassnmeatype",%s'
+                                      % glonassnmeatype)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'glonassnmeatype'
+            }
+            return json.dumps(message)
+
+    def _gnss_config_ec2x(self, cmd={}):
         config = '0'
         glonassnmeatype = '0'
         beidounmeatype = '0'
@@ -907,7 +937,7 @@ class SockServer(threading.Thread):
             message = {
                 'status': status,
                 'result': result,
-                'cmd': 'gnsconfig'
+                'cmd': 'gnssconfig'
             }
             return json.dumps(message)
         status, result = self.send_at('AT+QGPSCFG="glonassnmeatype",%s'
@@ -943,6 +973,15 @@ class SockServer(threading.Thread):
                 'cmd': 'galileonmeatype'
             }
             return json.dumps(message)
+
+    def _gnss_config(self, cmd={}):
+        status, result = self.send_at("ATI")
+        if status == "OK":
+            info = result.split("\n")
+            if info[1] == 'UC20':
+                return self._gnss_config_uc2x(cmd)
+            else:
+                return self._gnss_config_ec2x(cmd)
 
     def gnss_start(self, cmd={}):
         status, result = self.send_at('AT+QGPSCFG="gpsnmeatype",31')
