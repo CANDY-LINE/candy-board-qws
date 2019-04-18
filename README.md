@@ -69,6 +69,7 @@ $ ./setup.py publish
 * 2.6.0
     - Fix an issue where users see inconsistent messages when a modem is disconnected
     - Add a new service status for EPS
+    - Fix an issue where some AT commands for ECx were incompatible with UC20
 * 2.5.0
     - Add WCDMA/GSM modem support for retrieving the network info
 * 2.4.0
