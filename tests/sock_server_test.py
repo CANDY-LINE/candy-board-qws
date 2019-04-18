@@ -80,7 +80,8 @@ def test_network_show_ec2x_lte(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"registration": {"cs": "Registered", "ps": "Registered", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
         '}}'
 
@@ -108,7 +109,8 @@ def test_network_show_uc20_gsm_1800(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "GSM", "band": "GSM 1800", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered"}, ' \
+        '"registration": {"cs": "Registered", "ps": "Registered", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
         '}}'
 
@@ -162,7 +164,8 @@ def test_network_show_no_signal(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Searching", "ps": "Searching"}, ' \
+        '"registration": {"cs": "Searching", "ps": "Searching", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
         '}}'
 
@@ -216,7 +219,8 @@ def test_network_show_denied_in_cs_networks(setup_sock_server):
     assert ret == '{"status": "OK", ' \
         '"result": {' \
         '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Denied", "ps": "Searching"}, ' \
+        '"registration": {"cs": "Denied", "ps": "Searching", ' \
+        '"eps": "Registered"}, ' \
         '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
         '}}'
 
@@ -380,10 +384,83 @@ def test_modem_init_qnvw_failure(setup_sock_server):
     assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
 
 
-def test_gnss_start(setup_sock_server):
+def test_gnss_start_ec2x(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'start'})
     assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_start_ec2x_nok(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QGPSCFG="gnssconfig",0'] = [
+        "AT+QGPSCFG=\"gnssconfig\",0",
+        "",
+        "",
+        "+CME ERROR: 999",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "ERROR", "cmd": "gnssconfig", ' \
+                  '"result": "ERROR"}'
+
+
+def test_gnss_start_uc2x(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['ATI'] = [
+        "ATI",
+        "",
+        "",
+        "MAN",
+        "",
+        "UC20",
+        "",
+        "Revision: REV",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_gnss_start_uc2x_nok(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['ATI'] = [
+        "ATI",
+        "",
+        "",
+        "MAN",
+        "",
+        "UC20",
+        "",
+        "Revision: REV",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    server.seralport.res['AT+QGPSCFG="glonassenable",0'] = [
+        "AT+QGPSCFG=\"glonassenable\",0",
+        "",
+        "",
+        "+CME ERROR: 501",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform(
+        {'category': 'gnss', 'action': 'start'})
+    assert ret == '{"status": "ERROR", "cmd": "glonassenable", ' \
+                  '"result": "ERROR"}'
 
 
 def test_gnss_status_on(setup_sock_server):

@@ -19,7 +19,7 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-version = "2.5.0"
+version = "2.6.0"
 
 try:
     import pypandoc

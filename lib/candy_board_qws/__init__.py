@@ -359,12 +359,8 @@ class SockServer(threading.Thread):
             return self.error_message("Unknown Command")
         except KeyError:
             return self.error_message("Invalid Args")
-        except OSError:
-            return self.error_message("I/O Error: %s" %
-                                      (''.join(traceback
-                                       .format_exception(*sys.exc_info())[-2:])
-                                       .strip().replace('\n', ': '))
-                                      )
+        except OSError:  # I/O Error
+            return self.error_message("Modem is not ready")
         except Exception:
             return self.error_message("Unexpected error: %s" %
                                       (''.join(traceback
@@ -533,7 +529,8 @@ class SockServer(threading.Thread):
                 operator = "N/A"
             registration = {
                 "cs": "N/A",
-                "ps": "N/A"
+                "ps": "N/A",
+                "eps": "N/A"
             }
             status, result = self.send_at("AT+CREG?")
             try:
@@ -545,6 +542,12 @@ class SockServer(threading.Thread):
             try:
                 ps = int(result.split(",")[1])
                 registration["ps"] = CGREG_STATS[ps]
+            except IndexError:
+                pass
+            status, result = self.send_at("AT+CEREG?")
+            try:
+                eps = int(result.split(",")[1])
+                registration["eps"] = CGREG_STATS[eps]
             except IndexError:
                 pass
             access = 'N/A'
@@ -882,7 +885,37 @@ class SockServer(threading.Thread):
         }
         return json.dumps(message)
 
-    def _gnss_config(self, cmd={}):
+    def _gnss_config_uc2x(self, cmd={}):
+        glonassenable = '0'
+        glonassnmeatype = '0'
+        if 'all' in cmd and cmd['all']:
+            glonassenable = '1'
+            glonassnmeatype = '7'
+
+        status, result = self.send_at('AT+QGPSCFG="glonassenable",%s'
+                                      % glonassenable)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'glonassenable'
+            }
+            return json.dumps(message)
+        status, result = self.send_at('AT+QGPSCFG="glonassnmeatype",%s'
+                                      % glonassnmeatype)
+        if status != "OK":
+            result = status
+            status = "ERROR"
+            message = {
+                'status': status,
+                'result': result,
+                'cmd': 'glonassnmeatype'
+            }
+            return json.dumps(message)
+
+    def _gnss_config_ec2x(self, cmd={}):
         config = '0'
         glonassnmeatype = '0'
         beidounmeatype = '0'
@@ -904,7 +937,7 @@ class SockServer(threading.Thread):
             message = {
                 'status': status,
                 'result': result,
-                'cmd': 'gnsconfig'
+                'cmd': 'gnssconfig'
             }
             return json.dumps(message)
         status, result = self.send_at('AT+QGPSCFG="glonassnmeatype",%s'
@@ -940,6 +973,15 @@ class SockServer(threading.Thread):
                 'cmd': 'galileonmeatype'
             }
             return json.dumps(message)
+
+    def _gnss_config(self, cmd={}):
+        status, result = self.send_at("ATI")
+        if status == "OK":
+            info = result.split("\n")
+            if info[1] == 'UC20':
+                return self._gnss_config_uc2x(cmd)
+            else:
+                return self._gnss_config_ec2x(cmd)
 
     def gnss_start(self, cmd={}):
         status, result = self.send_at('AT+QGPSCFG="gpsnmeatype",31')
