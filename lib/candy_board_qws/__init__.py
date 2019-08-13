@@ -397,6 +397,7 @@ class SockServer(threading.Thread):
                 continue
             elif line == ok or \
                     line == "ERROR" or \
+                    line == "NO DIALTONE" or \
                     line.startswith("+CME ERROR"):
                 status = line
             elif line is None:
@@ -812,6 +813,7 @@ class SockServer(threading.Thread):
                 '004000400000000000000000000"')
             if status != "OK":
                 result = qnvw_result
+            self._modem_clck_unlock(cmd)
 
         message = {
             'status': status,
@@ -867,6 +869,7 @@ class SockServer(threading.Thread):
                 'cmd': 'AT+QNVW'
             }
             return json.dumps(message)
+        self._modem_clck_unlock(cmd)
         if 'baudrate' in cmd:
             baudrate_ret, result = self.send_at("AT+IPR=%s" % cmd['baudrate'])
             if baudrate_ret != "OK":
@@ -884,6 +887,11 @@ class SockServer(threading.Thread):
             }
         }
         return json.dumps(message)
+
+    def _modem_clck_unlock(self, cmd={}):
+        if 'pu' not in cmd or cmd['pu'] is False:
+            self.send_at(
+                'AT+CLCK="PU",0,"12341234"')
 
     def _gnss_config_uc2x(self, cmd={}):
         glonassenable = '0'
