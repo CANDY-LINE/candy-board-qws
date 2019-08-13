@@ -53,6 +53,12 @@ $ find . -name "*.pyc" | xargs rm -f
 $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
+### Install the local package
+
+```
+$ pip install ./candy-board-qws.tgz --no-cache-dir
+```
+
 ## Test
 
 ```
