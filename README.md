@@ -72,6 +72,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.7.0
+    - Add a new option to unlock PU configuration
 * 2.6.0
     - Fix an issue where users see inconsistent messages when a modem is disconnected
     - Add a new service status for EPS
