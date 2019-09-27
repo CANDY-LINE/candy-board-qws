@@ -398,6 +398,7 @@ class SockServer(threading.Thread):
             elif line == ok or \
                     line == "ERROR" or \
                     line == "NO DIALTONE" or \
+                    line == "NO CARRIER" or \
                     line.startswith("+CME ERROR"):
                 status = line
             elif line is None:
