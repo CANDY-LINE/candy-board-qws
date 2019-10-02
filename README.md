@@ -53,6 +53,12 @@ $ find . -name "*.pyc" | xargs rm -f
 $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
+### Install the local package
+
+```
+$ pip install ./candy-board-qws.tgz --no-cache-dir
+```
+
 ## Test
 
 ```
@@ -66,6 +72,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.7.0
+    - Add a new option to unlock PU configuration
 * 2.6.0
     - Fix an issue where users see inconsistent messages when a modem is disconnected
     - Add a new service status for EPS

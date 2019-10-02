@@ -332,7 +332,67 @@ def test_modem_show_anomaly(setup_sock_server):
 
 
 def test_modem_reset(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'reset'})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_reset_pu_ok(setup_sock_server):
+    ret = setup_sock_server.perform({
+        'category': 'modem', 'action': 'reset', 'pu': True})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_reset_pu_no_dialtone(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "NO DIALTONE",
+        ""
+    ]
+    ret = setup_sock_server.perform({
+        'category': 'modem', 'action': 'reset', 'pu': True})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_reset_pu_error(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "ERROR",
+        ""
+    ]
+    ret = setup_sock_server.perform({
+        'category': 'modem', 'action': 'reset', 'pu': True})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_reset_pu_error_0(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "+CME ERROR: 0",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({
+        'category': 'modem', 'action': 'reset', 'pu': True})
     assert ret == '{"status": "OK", "result": ""}'
 
 
@@ -356,11 +416,31 @@ def test_modem_off(setup_sock_server):
 
 
 def test_modem_init(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform(
         {'category': 'modem',
          'action': 'init',
          'baudrate': '115200',
          'counter_reset': True
+         })
+    assert ret == '{"status": "OK", ' \
+                  '"result": {"counter_reset": "OK", "baudrate": "OK"}}'
+
+
+def test_modem_init_pu_true(setup_sock_server):
+    ret = setup_sock_server.perform(
+        {'category': 'modem',
+         'action': 'init',
+         'baudrate': '115200',
+         'counter_reset': True,
+         'pu': True
          })
     assert ret == '{"status": "OK", ' \
                   '"result": {"counter_reset": "OK", "baudrate": "OK"}}'
