@@ -57,6 +57,7 @@ setup(
                  .format(version),
     description='Base CANDY LINE boards service for '
         'Quectel Wireless Solutions Modules',
+    long_description_content_type='text/markdown',
     long_description=readme_txt,
     packages=find_packages('lib'),
     package_dir={'': 'lib'},
