@@ -751,8 +751,8 @@ class SockServer(threading.Thread):
             if result['status'] == "OK":
                 datelen = len(result['result'])
                 if datelen == 29:
-                utc = result['result'][8:-4]
-                timezone_hrs = float(result['result'][-4:-1]) / 4
+                    utc = result['result'][8:-4]
+                    timezone_hrs = float(result['result'][-4:-1]) / 4
                 elif datelen == 26:
                     utc = result['result'][8:-1]
                     timezone_hrs = 0.0
