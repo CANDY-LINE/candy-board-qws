@@ -72,6 +72,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 2.8.0
+    - Fix an issue where some modem commands could fail when a date/time text didn't have the timezone
 * 2.7.0
     - Add a new option to unlock PU configuration
 * 2.6.0
