@@ -749,8 +749,13 @@ class SockServer(threading.Thread):
                 counter = result['result']
             result = self._timestamp_show()
             if result['status'] == "OK":
-                utc = result['result'][8:-4]
-                timezone_hrs = float(result['result'][-4:-1]) / 4
+                datelen = len(result['result'])
+                if datelen == 29:
+                    utc = result['result'][8:-4]
+                    timezone_hrs = float(result['result'][-4:-1]) / 4
+                elif datelen == 26:
+                    utc = result['result'][8:-1]
+                    timezone_hrs = 0.0
             result = self._functionality_show()
             func = result['result']['functionality']
         message = {

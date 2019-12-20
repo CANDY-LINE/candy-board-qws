@@ -331,6 +331,31 @@ def test_modem_show_anomaly(setup_sock_server):
         '}}'
 
 
+def test_modem_show_no_timezone(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CCLK?'] = [
+        "AT+CCLK?",
+        "",
+        "",
+        "+CCLK: \"80/01/06,00:02:45\"",
+        "",
+        "",
+        "OK",
+        ""
+    ]
+    ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
+    assert ret == '{"status": "OK", "result": ' \
+        '{' \
+        '"counter": {"rx": "39379", "tx": "7555"}, ' \
+        '"datetime": "80/01/06,00:02:45", ' \
+        '"functionality": "Full", ' \
+        '"imei": "999999999999999", ' \
+        '"timezone": 0.0, ' \
+        '"model": "MOD", ' \
+        '"manufacturer": "MAN", ' \
+        '"revision": "REV"' \
+        '}}'
+
 def test_modem_reset(setup_sock_server):
     server = setup_sock_server
     server.seralport.res['AT+CLCK='] = [
@@ -360,7 +385,7 @@ def test_modem_reset_pu_no_dialtone(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({
-        'category': 'modem', 'action': 'reset', 'pu': True})
+        'category': 'modem', 'action': 'reset', 'pu': False})
     assert ret == '{"status": "OK", "result": ""}'
 
 
@@ -374,7 +399,7 @@ def test_modem_reset_pu_error(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({
-        'category': 'modem', 'action': 'reset', 'pu': True})
+        'category': 'modem', 'action': 'reset', 'pu': False})
     assert ret == '{"status": "OK", "result": ""}'
 
 
@@ -392,7 +417,21 @@ def test_modem_reset_pu_error_0(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({
-        'category': 'modem', 'action': 'reset', 'pu': True})
+        'category': 'modem', 'action': 'reset', 'pu': False})
+    assert ret == '{"status": "OK", "result": ""}'
+
+
+def test_modem_reset_pu_error_0_nok(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+CLCK='] = [
+        "AT+CLCK=",
+        "",
+        "",
+        "+CME ERROR: 0",
+        ""
+    ]
+    ret = setup_sock_server.perform({
+        'category': 'modem', 'action': 'reset', 'pu': False})
     assert ret == '{"status": "OK", "result": ""}'
 
 

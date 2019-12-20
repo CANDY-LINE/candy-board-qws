@@ -363,7 +363,7 @@ class SerialPortEmurator:
             return None
 
     def write(self, str):
-        print("W:[%s]" % str)
+        print("[SerialportEmulator:write]:[%s]\n" % str)
         self.cmd = str.strip()
         if self.cmd not in self.res:
             if self.cmd.find('=') >= 0:
