@@ -136,7 +136,10 @@ class SerialPort(object):
         done = False
         cnt = 0
         while not done:
-            n = os.read(self.fd, 1).decode()
+            try:
+                n = os.read(self.fd, 1).decode()
+            except UnicodeDecodeError:
+                n = '.'
             if n == '':
                 if cnt > 200:
                     buf = None
