@@ -73,7 +73,7 @@ $ ./setup.py publish
 
 # Revision history
 * 3.0.0
-    - Add Python 3 (3.7+) support (stil working on Python 2.7)
+    - Add Python 3 (3.7+) support (still working on Python 2.7)
 * 2.8.0
     - Fix an issue where some modem commands could fail when a date/time text didn't have the timezone
 * 2.7.0
