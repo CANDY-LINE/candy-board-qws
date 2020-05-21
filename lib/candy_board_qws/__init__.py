@@ -136,7 +136,7 @@ class SerialPort(object):
         done = False
         cnt = 0
         while not done:
-            n = os.read(self.fd, 1)
+            n = os.read(self.fd, 1).decode()
             if n == '':
                 if cnt > 200:
                     buf = None
@@ -157,10 +157,10 @@ class SerialPort(object):
             return None
 
     def write(self, str):
-        os.write(self.fd, str)
+        os.write(self.fd, str.encode())
 
     def write_byte(self, byte):
-        os.write(self.fd, chr(byte))
+        os.write(self.fd, byte)
 
     def close(self):
         try:
