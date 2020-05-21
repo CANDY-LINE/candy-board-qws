@@ -329,7 +329,7 @@ class SockServer(threading.Thread):
                 connection.sendall(packed_header)
                 if size > 0:
                     packer_body = struct.Struct("%is" % size)
-                    packed_message = packer_body.pack(message)
+                    packed_message = packer_body.pack(message.encode('utf-8'))
                     connection.sendall(packed_message)
 
             except socket.error as e:
