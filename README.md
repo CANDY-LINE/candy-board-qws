@@ -56,7 +56,14 @@ $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ### Install the local package
 
 ```
-$ pip install ./candy-board-qws.tgz --no-cache-dir
+# pip command
+$ pip install --no-cache-dir ./candy-board-qws.tgz
+
+# python command
+$ python -m pip install --no-cache-dir ./candy-board-qws.tgz
+
+# python3 command
+$ python3 -m pip install --no-cache-dir ./candy-board-qws.tgz
 ```
 
 ## Test
