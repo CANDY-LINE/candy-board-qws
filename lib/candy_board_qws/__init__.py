@@ -136,7 +136,10 @@ class SerialPort(object):
         done = False
         cnt = 0
         while not done:
-            n = os.read(self.fd, 1)
+            try:
+                n = os.read(self.fd, 1).decode()
+            except UnicodeDecodeError:
+                n = '.'
             if n == '':
                 if cnt > 200:
                     buf = None
@@ -157,10 +160,10 @@ class SerialPort(object):
             return None
 
     def write(self, str):
-        os.write(self.fd, str)
+        os.write(self.fd, str.encode())
 
     def write_byte(self, byte):
-        os.write(self.fd, chr(byte))
+        os.write(self.fd, byte)
 
     def close(self):
         try:
@@ -329,7 +332,7 @@ class SockServer(threading.Thread):
                 connection.sendall(packed_header)
                 if size > 0:
                     packer_body = struct.Struct("%is" % size)
-                    packed_message = packer_body.pack(message)
+                    packed_message = packer_body.pack(message.encode('utf-8'))
                     connection.sendall(packed_message)
 
             except socket.error as e:
