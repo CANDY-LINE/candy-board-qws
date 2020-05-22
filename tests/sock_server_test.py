@@ -19,6 +19,7 @@ import path_hack
 import candy_board_qws
 from emulator_serialport import SerialPortEmurator
 import pytest
+import json
 
 
 @pytest.fixture(scope='function')
@@ -51,8 +52,11 @@ def test_perform_nok2(setup_sock_server):
 
 def test_apn_ls(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'apn', 'action': 'ls'})
-    assert ret == '{"status": "OK", "result": {"apns": [{"apn": ' \
-        '"access_point_name", "user": "user_id", "apn_id": "1"}]}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['apns'][0]['apn'] == 'access_point_name'
+    assert act['result']['apns'][0]['user'] == 'user_id'
+    assert act['result']['apns'][0]['apn_id'] == '1'
 
 
 def test_apn_set(setup_sock_server):
@@ -77,13 +81,17 @@ def test_apn_set_nok(setup_sock_server):
 
 def test_network_show_ec2x_lte(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
-    assert ret == '{"status": "OK", ' \
-        '"result": {' \
-        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered", ' \
-        '"eps": "Registered"}, ' \
-        '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['network'] == 'N/A'
+    assert act['result']['access'] == 'FDD LTE'
+    assert act['result']['band'] == 'LTE BAND 1'
+    assert act['result']['registration']['cs'] == 'Registered'
+    assert act['result']['registration']['ps'] == 'Registered'
+    assert act['result']['registration']['eps'] == 'Registered'
+    assert act['result']['operator'] == 'NTT DOCOMO'
+    assert act['result']['rssi'] == '-105'
+    assert act['result']['rssiDesc'] == ''
 
 
 def test_network_show_uc20_gsm_1800(setup_sock_server):
@@ -106,13 +114,17 @@ def test_network_show_uc20_gsm_1800(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
-    assert ret == '{"status": "OK", ' \
-        '"result": {' \
-        '"network": "N/A", "access": "GSM", "band": "GSM 1800", ' \
-        '"registration": {"cs": "Registered", "ps": "Registered", ' \
-        '"eps": "Registered"}, ' \
-        '"operator": "NTT DOCOMO", "rssi": "-105", "rssiDesc": ""' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['network'] == 'N/A'
+    assert act['result']['access'] == 'GSM'
+    assert act['result']['band'] == 'GSM 1800'
+    assert act['result']['registration']['cs'] == 'Registered'
+    assert act['result']['registration']['ps'] == 'Registered'
+    assert act['result']['registration']['eps'] == 'Registered'
+    assert act['result']['operator'] == 'NTT DOCOMO'
+    assert act['result']['rssi'] == '-105'
+    assert act['result']['rssiDesc'] == ''
 
 
 def test_network_show_no_signal(setup_sock_server):
@@ -161,13 +173,17 @@ def test_network_show_no_signal(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
-    assert ret == '{"status": "OK", ' \
-        '"result": {' \
-        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Searching", "ps": "Searching", ' \
-        '"eps": "Registered"}, ' \
-        '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['network'] == 'N/A'
+    assert act['result']['access'] == 'FDD LTE'
+    assert act['result']['band'] == 'LTE BAND 1'
+    assert act['result']['registration']['cs'] == 'Searching'
+    assert act['result']['registration']['ps'] == 'Searching'
+    assert act['result']['registration']['eps'] == 'Registered'
+    assert act['result']['operator'] == 'N/A'
+    assert act['result']['rssi'] == '-89'
+    assert act['result']['rssiDesc'] == ''
 
 
 def test_network_show_denied_in_cs_networks(setup_sock_server):
@@ -216,13 +232,17 @@ def test_network_show_denied_in_cs_networks(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({'category': 'network', 'action': 'show'})
-    assert ret == '{"status": "OK", ' \
-        '"result": {' \
-        '"network": "N/A", "access": "FDD LTE", "band": "LTE BAND 1", ' \
-        '"registration": {"cs": "Denied", "ps": "Searching", ' \
-        '"eps": "Registered"}, ' \
-        '"operator": "N/A", "rssi": "-89", "rssiDesc": ""' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['network'] == 'N/A'
+    assert act['result']['access'] == 'FDD LTE'
+    assert act['result']['band'] == 'LTE BAND 1'
+    assert act['result']['registration']['cs'] == 'Denied'
+    assert act['result']['registration']['ps'] == 'Searching'
+    assert act['result']['registration']['eps'] == 'Registered'
+    assert act['result']['operator'] == 'N/A'
+    assert act['result']['rssi'] == '-89'
+    assert act['result']['rssiDesc'] == ''
 
 
 def test_network_deregister(setup_sock_server):
@@ -284,24 +304,26 @@ def test_network_register_44099_auto(setup_sock_server):
 
 def test_sim_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'sim', 'action': 'show'})
-    assert ret == '{"status": "OK", "result": ' \
-        '{"msisdn": "09099999999", ' \
-        '"state": "SIM_STATE_READY", "imsi": "440111111111111"}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['msisdn'] == '09099999999'
+    assert act['result']['state'] == 'SIM_STATE_READY'
+    assert act['result']['imsi'] == '440111111111111'
 
 
 def test_modem_show(setup_sock_server):
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
-    assert ret == '{"status": "OK", "result": ' \
-        '{' \
-        '"counter": {"rx": "39379", "tx": "7555"}, ' \
-        '"datetime": "17/06/01,11:47:29", ' \
-        '"functionality": "Full", ' \
-        '"imei": "999999999999999", ' \
-        '"timezone": 9.0, ' \
-        '"model": "MOD", ' \
-        '"manufacturer": "MAN", ' \
-        '"revision": "REV"' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['counter']['rx'] == '39379'
+    assert act['result']['counter']['tx'] == '7555'
+    assert act['result']['datetime'] == '17/06/01,11:47:29'
+    assert act['result']['functionality'] == 'Full'
+    assert act['result']['imei'] == '999999999999999'
+    assert act['result']['timezone'] == 9.0
+    assert act['result']['model'] == 'MOD'
+    assert act['result']['manufacturer'] == 'MAN'
+    assert act['result']['revision'] == 'REV'
 
 
 def test_modem_show_anomaly(setup_sock_server):
@@ -318,17 +340,17 @@ def test_modem_show_anomaly(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
-    assert ret == '{"status": "OK", "result": ' \
-        '{' \
-        '"counter": {"rx": "39379", "tx": "7555"}, ' \
-        '"datetime": "17/06/01,11:47:29", ' \
-        '"functionality": "Anomaly", ' \
-        '"imei": "999999999999999", ' \
-        '"timezone": 9.0, ' \
-        '"model": "MOD", ' \
-        '"manufacturer": "MAN", ' \
-        '"revision": "REV"' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['counter']['rx'] == '39379'
+    assert act['result']['counter']['tx'] == '7555'
+    assert act['result']['datetime'] == '17/06/01,11:47:29'
+    assert act['result']['functionality'] == 'Anomaly'
+    assert act['result']['imei'] == '999999999999999'
+    assert act['result']['timezone'] == 9.0
+    assert act['result']['model'] == 'MOD'
+    assert act['result']['manufacturer'] == 'MAN'
+    assert act['result']['revision'] == 'REV'
 
 
 def test_modem_show_no_timezone(setup_sock_server):
@@ -344,17 +366,17 @@ def test_modem_show_no_timezone(setup_sock_server):
         ""
     ]
     ret = setup_sock_server.perform({'category': 'modem', 'action': 'show'})
-    assert ret == '{"status": "OK", "result": ' \
-        '{' \
-        '"counter": {"rx": "39379", "tx": "7555"}, ' \
-        '"datetime": "80/01/06,00:02:45", ' \
-        '"functionality": "Full", ' \
-        '"imei": "999999999999999", ' \
-        '"timezone": 0.0, ' \
-        '"model": "MOD", ' \
-        '"manufacturer": "MAN", ' \
-        '"revision": "REV"' \
-        '}}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['counter']['rx'] == '39379'
+    assert act['result']['counter']['tx'] == '7555'
+    assert act['result']['datetime'] == '80/01/06,00:02:45'
+    assert act['result']['functionality'] == 'Full'
+    assert act['result']['imei'] == '999999999999999'
+    assert act['result']['timezone'] == 0.0
+    assert act['result']['model'] == 'MOD'
+    assert act['result']['manufacturer'] == 'MAN'
+    assert act['result']['revision'] == 'REV'
 
 def test_modem_reset(setup_sock_server):
     server = setup_sock_server
@@ -500,7 +522,10 @@ def test_modem_init_qnvw_failure(setup_sock_server):
          'baudrate': '115200',
          'counter_reset': True
          })
-    assert ret == '{"status": "ERROR", "cmd": "AT+QNVW", "result": ""}'
+    act = json.loads(ret)
+    assert act['status'] == 'ERROR'
+    assert act['cmd'] == 'AT+QNVW'
+    assert act['result'] == ''
 
 
 def test_gnss_start_ec2x(setup_sock_server):
@@ -523,8 +548,10 @@ def test_gnss_start_ec2x_nok(setup_sock_server):
     ]
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'start'})
-    assert ret == '{"status": "ERROR", "cmd": "gnssconfig", ' \
-                  '"result": "ERROR"}'
+    act = json.loads(ret)
+    assert act['status'] == 'ERROR'
+    assert act['cmd'] == 'gnssconfig'
+    assert act['result'] == 'ERROR'
 
 
 def test_gnss_start_uc2x(setup_sock_server):
@@ -578,8 +605,10 @@ def test_gnss_start_uc2x_nok(setup_sock_server):
     ]
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'start'})
-    assert ret == '{"status": "ERROR", "cmd": "glonassenable", ' \
-                  '"result": "ERROR"}'
+    act = json.loads(ret)
+    assert act['status'] == 'ERROR'
+    assert act['cmd'] == 'glonassenable'
+    assert act['result'] == 'ERROR'
 
 
 def test_gnss_status_on(setup_sock_server):
@@ -663,13 +692,18 @@ def test_gnss_stop(setup_sock_server):
 def test_gnss_locate_ok(setup_sock_server):
     ret = setup_sock_server.perform(
         {'category': 'gnss', 'action': 'locate'})
-    assert ret == '{"status": "OK", "result": ' \
-                  '{' \
-                  '"spkn": 0.0, "nsat": 9, "hdop": 0.7, "cog": 0.0, ' \
-                  '"spkm": 0.0, "latitude": 35.68116, ' \
-                  '"timestamp": "2018-05-21T07:12:17.000Z", ' \
-                  '"altitude": 50.4, "fix": "2D", "longitude": 139.76486}' \
-                  '}'
+    act = json.loads(ret)
+    assert act['status'] == 'OK'
+    assert act['result']['spkn'] == 0.0
+    assert act['result']['nsat'] == 9
+    assert act['result']['hdop'] == 0.7
+    assert act['result']['cog'] == 0.0
+    assert act['result']['spkm'] == 0.0
+    assert act['result']['latitude'] == 35.68116
+    assert act['result']['altitude'] == 50.4
+    assert act['result']['longitude'] == 139.76486
+    assert act['result']['fix'] == '2D'
+    assert act['result']['timestamp'] == '2018-05-21T07:12:17.000Z'
 
 
 def test_gnss_locate_error_not_yet_fixed(setup_sock_server):

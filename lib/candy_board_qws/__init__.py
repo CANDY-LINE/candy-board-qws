@@ -29,6 +29,7 @@ import glob
 import platform
 import traceback
 import errno
+import re
 
 # SerialPort class was imported from John Wiseman's
 # https://github.com/wiseman/arduino-serial/blob/master/arduinoserial.py
@@ -135,7 +136,10 @@ class SerialPort(object):
         done = False
         cnt = 0
         while not done:
-            n = os.read(self.fd, 1)
+            try:
+                n = os.read(self.fd, 1).decode()
+            except UnicodeDecodeError:
+                n = '.'
             if n == '':
                 if cnt > 200:
                     buf = None
@@ -156,10 +160,10 @@ class SerialPort(object):
             return None
 
     def write(self, str):
-        os.write(self.fd, str)
+        os.write(self.fd, str.encode())
 
     def write_byte(self, byte):
-        os.write(self.fd, chr(byte))
+        os.write(self.fd, byte)
 
     def close(self):
         try:
@@ -328,10 +332,10 @@ class SockServer(threading.Thread):
                 connection.sendall(packed_header)
                 if size > 0:
                     packer_body = struct.Struct("%is" % size)
-                    packed_message = packer_body.pack(message)
+                    packed_message = packer_body.pack(message.encode('utf-8'))
                     connection.sendall(packed_message)
 
-            except socket.error, e:
+            except socket.error as e:
                 if isinstance(e.args, tuple):
                     if e[0] == errno.EPIPE:
                         continue
@@ -416,19 +420,19 @@ class SockServer(threading.Thread):
         id_name_list = []
         if status == "OK":
             try:
-                id_name_list = map(lambda e: e[10:].split(",")[0] + "," +
-                                   e[10:].split(",")[2].translate(None, '"'),
-                                   result.split("\n"))
+                id_name_list = list(map(lambda e: e[10:].split(",")[0] + "," +
+                                   re.sub('"', '', e[10:].split(",")[2]),
+                                   result.split("\n")))
                 status, result = self.send_at("AT$QCPDPP?")
                 creds_list = []
                 if status == "OK":
                     def to_user(e):
                         if len(e) > 2:
-                            return e[2].translate(None, '"')
+                            return re.sub('"', '', e[2])
                         return ''
-                    creds_list = map(lambda e: to_user(e),
-                                     map(lambda e: e[9:].split(","),
-                                         result.split("\n")))
+                    creds_list = list(map(lambda e: to_user(e),
+                                     list(map(lambda e: e[9:].split(","),
+                                         result.split("\n")))))
             except IndexError:
                 pass
         for i in range(len(id_name_list)):
@@ -636,7 +640,7 @@ class SockServer(threading.Thread):
             state = "SIM_STATE_READY"
             status, result = self.send_at("AT+CNUM")
             if len(result) > 5:
-                msisdn = result[6:].split(",")[1].translate(None, '"')
+                msisdn = re.sub('"', '', result[6:].split(",")[1])
             else:
                 msisdn = ''
         message = {
@@ -781,8 +785,8 @@ class SockServer(threading.Thread):
                 opts = json.loads(cmd['opts'])
             except Exception:
                 try:
-                    entries = map(lambda e: e.split('='),
-                                  cmd['opts'].split(','))
+                    entries = list(map(lambda e: e.split('='),
+                                  cmd['opts'].split(',')))
                     for (k, v) in entries:
                         opts[k.strip()] = v.strip()
                 except Exception:

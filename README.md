@@ -56,7 +56,14 @@ $ tar czvf candy-board-qws.tgz --exclude "./.*" --exclude build --exclude dist *
 ### Install the local package
 
 ```
-$ pip install ./candy-board-qws.tgz --no-cache-dir
+# pip command
+$ pip install --no-cache-dir ./candy-board-qws.tgz
+
+# python command
+$ python -m pip install --no-cache-dir ./candy-board-qws.tgz
+
+# python3 command
+$ python3 -m pip install --no-cache-dir ./candy-board-qws.tgz
 ```
 
 ## Test
@@ -72,6 +79,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 3.0.0
+    - Add Python 3 (3.7+) support (still working on Python 2.7)
 * 2.8.0
     - Fix an issue where some modem commands could fail when a date/time text didn't have the timezone
 * 2.7.0
