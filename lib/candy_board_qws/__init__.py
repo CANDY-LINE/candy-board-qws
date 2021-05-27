@@ -657,6 +657,7 @@ class SockServer(threading.Thread):
         state = "SIM_STATE_ABSENT"
         msisdn = ""
         imsi = ""
+        iccid = ""
         status, result = self.send_at("AT+CIMI")
         if status == "OK":
             imsi = result
@@ -665,12 +666,18 @@ class SockServer(threading.Thread):
             if len(result) > 5:
                 msisdn = re.sub('"', '', result[6:].split(",")[1])
             else:
-                msisdn = ''
+                msisdn = ""
+            status, result = self.send_at("AT+QCCID")
+            if len(result) > 7:
+                iccid = result.split(':')[1].strip()
+            else:
+                iccid = ""
         message = {
             'status': status,
             'result': {
                 'msisdn': msisdn,
                 'imsi': imsi,
+                'iccid': iccid,
                 'state': state
             }
         }
