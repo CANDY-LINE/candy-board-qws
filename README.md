@@ -79,6 +79,8 @@ $ ./setup.py publish
 ```
 
 # Revision history
+* 3.1.0
+    - Add a new attribute 'ICCID' into a SIM information result
 * 3.0.0
     - Add Python 3 (3.7+) support (still working on Python 2.7)
 * 2.8.0

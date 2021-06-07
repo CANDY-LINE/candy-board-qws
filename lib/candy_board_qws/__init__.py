@@ -30,6 +30,15 @@ import platform
 import traceback
 import errno
 import re
+import logging
+import logging.handlers
+
+logger = logging.getLogger('candy_board_qws')
+logger.setLevel(logging.INFO)
+handler = logging.handlers.SysLogHandler(address='/dev/log')
+logger.addHandler(handler)
+formatter = logging.Formatter('[candy_board_qws] %(module)s.%(funcName)s: %(message)s')
+handler.setFormatter(formatter)
 
 # SerialPort class was imported from John Wiseman's
 # https://github.com/wiseman/arduino-serial/blob/master/arduinoserial.py
@@ -312,39 +321,53 @@ class SockServer(threading.Thread):
 
         while True:
             try:
+                logger.debug("Waiting for an incoming request")
                 connection, client_address = self.sock.accept()
                 connection.setblocking(0)
 
                 # request
+                logger.debug("Request has arrived!")
                 header = self.recv(connection, header_packer.size)
                 size = header_packer.unpack(header)
+                logger.debug("Size:%d" % size)
                 unpacker_body = struct.Struct("%is" % size)
                 cmd_json = self.recv(connection, unpacker_body.size)
+                logger.debug("Body:[%s]" % cmd_json)
                 cmd = json.loads(cmd_json)
 
                 # response
+                logger.debug("Performing a command")
                 message = self.perform(cmd)
+                logger.debug("Command done!")
                 if message:
                     size = len(message)
                 else:
                     size = 0
                 packed_header = header_packer.pack(size)
                 connection.sendall(packed_header)
+                logger.debug("Size:%d" % size)
                 if size > 0:
                     packer_body = struct.Struct("%is" % size)
                     packed_message = packer_body.pack(message.encode('utf-8'))
+                    logger.debug("Body:[%s]" % message)
                     connection.sendall(packed_message)
 
             except socket.error as e:
                 if isinstance(e.args, tuple):
                     if e[0] == errno.EPIPE:
                         continue
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback)
+                logger.error("Socket Error: %s" %
+                                      (''.join(traceback
+                                       .format_exception(*sys.exc_info())[-2:])
+                                       .strip().replace('\n', ': '))
+                                      )
 
             except Exception:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback)
+                logger.error("Unexpected Error: %s" %
+                                      (''.join(traceback
+                                       .format_exception(*sys.exc_info())[-2:])
+                                       .strip().replace('\n', ': '))
+                                      )
 
             finally:
                 if 'connection' in locals():
@@ -634,6 +657,7 @@ class SockServer(threading.Thread):
         state = "SIM_STATE_ABSENT"
         msisdn = ""
         imsi = ""
+        iccid = ""
         status, result = self.send_at("AT+CIMI")
         if status == "OK":
             imsi = result
@@ -642,12 +666,18 @@ class SockServer(threading.Thread):
             if len(result) > 5:
                 msisdn = re.sub('"', '', result[6:].split(",")[1])
             else:
-                msisdn = ''
+                msisdn = ""
+            status, result = self.send_at("AT+QCCID")
+            if len(result) > 7:
+                iccid = result.split(':')[1].strip()
+            else:
+                iccid = ""
         message = {
             'status': status,
             'result': {
                 'msisdn': msisdn,
                 'imsi': imsi,
+                'iccid': iccid,
                 'state': state
             }
         }

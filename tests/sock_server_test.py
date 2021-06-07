@@ -303,12 +303,25 @@ def test_network_register_44099_auto(setup_sock_server):
 
 
 def test_sim_show(setup_sock_server):
+    server = setup_sock_server
+    server.seralport.res['AT+QCCID'] = [
+        "AT+QCCID",
+        "",
+        "",
+        "+QCCID: 00000000000000000000",
+        "",
+        "",
+        "",
+        "OK",
+        ""
+    ]
     ret = setup_sock_server.perform({'category': 'sim', 'action': 'show'})
     act = json.loads(ret)
     assert act['status'] == 'OK'
     assert act['result']['msisdn'] == '09099999999'
     assert act['result']['state'] == 'SIM_STATE_READY'
     assert act['result']['imsi'] == '440111111111111'
+    assert act['result']['iccid'] == '00000000000000000000'
 
 
 def test_modem_show(setup_sock_server):
