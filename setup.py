@@ -19,7 +19,7 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-version = "3.0.0"
+version = "3.1.0"
 
 try:
     import pypandoc
