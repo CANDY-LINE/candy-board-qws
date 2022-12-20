@@ -354,7 +354,9 @@ class SockServer(threading.Thread):
 
             except socket.error as e:
                 if isinstance(e.args, tuple):
-                    if e[0] == errno.EPIPE:
+                    if hasattr(e, 'errno') and e.errno == errno.EPIPE:  # python3
+                        continue
+                    elif e[0] == errno.EPIPE:  # python2
                         continue
                 logger.error("Socket Error: %s" %
                                       (''.join(traceback
